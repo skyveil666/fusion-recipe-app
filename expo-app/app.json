@@ -1,0 +1,56 @@
+{
+  "expo": {
+    "name": "Fusion Recipe",
+    "slug": "fusion-recipe",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#3a5a18"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSCameraUsageDescription": "レシピ生成のため冷蔵庫の食材を撮影します",
+        "NSPhotoLibraryUsageDescription": "食材の写真を選択してレシピを作成します"
+      }
+    },
+    "icon": "./assets/icon.png",
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#3a5a18"
+      },
+      "package": "com.fusionrecipe.app",
+      "versionCode": 2,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "食材の写真を選択してレシピを作成します",
+          "cameraPermission": "冷蔵庫の食材を撮影してレシピを作成します"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "冷蔵庫の食材を撮影してレシピを作成します"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f503b340-a84f-4d0f-80c4-3aca0579f83a"
+      }
+    },
+    "owner": "skyveil"
+  }
+}
