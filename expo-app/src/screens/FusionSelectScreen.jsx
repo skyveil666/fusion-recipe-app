@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp, useTheme } from '../AppContext';
 import BottomNav from '../components/BottomNav';
 import LoadingOverlay from '../components/LoadingOverlay';
+import MapSelectModal from '../components/MapSelectModal';
 import { COUNTRIES_BY_REGION, JAPAN_MUNICIPALITIES, API_BASE } from '../constants';
 
 const MAIN_SERVINGS = ['1人前', '2人前', '3人前', '4人前'];
@@ -120,6 +121,7 @@ export default function FusionSelectScreen({ navigation }) {
   const [genError, setGenError] = useState(null);
   const [newIng, setNewIng] = useState('');
   const [newExclude, setNewExclude] = useState('');
+  const [mapModalVisible, setMapModalVisible] = useState(false);
   const [isIngEnabled, setIsIngEnabled] = useState(false);
   const [isServingsEnabled, setIsServingsEnabled] = useState(false);
   const [isCookingTimeEnabled, setIsCookingTimeEnabled] = useState(false);
@@ -248,6 +250,14 @@ export default function FusionSelectScreen({ navigation }) {
   return (
     <View style={{ flex: 1, backgroundColor: '#2d5a1b' }}>
       <LoadingOverlay visible={loading} message="レシピを生成中..." />
+      <MapSelectModal
+        visible={mapModalVisible}
+        onClose={() => setMapModalVisible(false)}
+        onSelect={(value, slot) => {
+          if (slot === 1) set('country1', value);
+          else set('country2', value);
+        }}
+      />
       <View style={[s.screen, { flex: 1, marginTop: insets.top }]}>
 
         {/* Header */}
@@ -300,6 +310,14 @@ export default function FusionSelectScreen({ navigation }) {
                 <Text style={s.randomBtnSubText}>🗾 日本ランダム</Text>
               </TouchableOpacity>
             </View>
+            {/* 地図から選ぶ */}
+            <TouchableOpacity
+              style={s.mapBtn}
+              onPress={() => setMapModalVisible(true)}
+              activeOpacity={0.85}
+            >
+              <Text style={s.mapBtnText}>🗺️ 地図から選ぶ</Text>
+            </TouchableOpacity>
           </View>
 
           {/* ② 調理時間 */}
@@ -623,6 +641,12 @@ const makeStyles = (C) => StyleSheet.create({
     paddingVertical: 10, alignItems: 'center', backgroundColor: C.white,
   },
   randomBtnSubText: { fontSize: 13, fontWeight: '600', color: C.primary },
+  mapBtn: {
+    borderWidth: 1.5, borderColor: C.accent, borderRadius: 12,
+    paddingVertical: 11, alignItems: 'center', backgroundColor: '#fff8f0',
+    marginTop: 8, flexDirection: 'row', justifyContent: 'center',
+  },
+  mapBtnText: { fontSize: 13, fontWeight: '700', color: C.accent },
 
   pillRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
   pill: {
