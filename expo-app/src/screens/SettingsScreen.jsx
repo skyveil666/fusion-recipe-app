@@ -10,7 +10,7 @@ import { COMMON_ALLERGENS } from '../constants';
 
 export default function SettingsScreen({ navigation }) {
   const insets = useSafeAreaInsets();
-  const { allergies, setAllergies, darkMode, setDarkMode, dislikes, setDislikes, avoidMethods, setAvoidMethods } = useApp();
+  const { allergies, setAllergies, darkMode, setDarkMode, dislikes, setDislikes, avoidMethods, setAvoidMethods, setHasSeenOnboarding } = useApp();
   const C = useTheme();
   const s = useMemo(() => makeStyles(C), [C]);
   const [custom, setCustom] = useState('');
@@ -221,12 +221,45 @@ export default function SettingsScreen({ navigation }) {
           </Text>
         </View>
 
+        {/* プラン・ポイント管理 */}
+        <TouchableOpacity
+          style={s.planCard}
+          onPress={() => navigation.navigate('Paywall')}
+          activeOpacity={0.85}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View style={{ gap: 4 }}>
+              <Text style={s.planTitle}>💎 プラン・ポイント管理</Text>
+              <Text style={s.planSub}>残り回数の確認・追加購入・プラン変更</Text>
+            </View>
+            <Text style={{ fontSize: 18, color: '#fff' }}>›</Text>
+          </View>
+        </TouchableOpacity>
+
         {/* 注意事項・免責事項 */}
         <TouchableOpacity style={s.disclaimerCard} onPress={() => setShowDisclaimer(true)} activeOpacity={0.85}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <View style={{ gap: 4 }}>
               <Text style={s.disclaimerTitle}>📋 注意事項・免責事項</Text>
               <Text style={s.disclaimerSub}>AI生成について・安全な使い方</Text>
+            </View>
+            <Text style={{ fontSize: 18, color: C.textMuted }}>›</Text>
+          </View>
+        </TouchableOpacity>
+
+        {/* 使い方ガイドを再表示 */}
+        <TouchableOpacity
+          style={s.guideBtn}
+          onPress={() => {
+            setHasSeenOnboarding(false);
+            navigation.navigate('Onboarding');
+          }}
+          activeOpacity={0.85}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View style={{ gap: 4 }}>
+              <Text style={s.guideBtnTitle}>📖 使い方ガイドをもう一度見る</Text>
+              <Text style={s.guideBtnSub}>アプリの使い方をはじめから確認できます</Text>
             </View>
             <Text style={{ fontSize: 18, color: C.textMuted }}>›</Text>
           </View>
@@ -406,6 +439,13 @@ const makeStyles = (C) => StyleSheet.create({
   },
   infoText: { fontSize: 12, color: C.primary, lineHeight: 20 },
 
+  planCard: {
+    backgroundColor: '#7c3aed', borderRadius: 16, padding: 16,
+    shadowColor: '#7c3aed', shadowOpacity: 0.25, shadowRadius: 10, elevation: 4,
+  },
+  planTitle: { fontSize: 14, fontWeight: '700', color: '#fff' },
+  planSub: { fontSize: 12, color: 'rgba(255,255,255,0.8)' },
+
   disclaimerCard: {
     backgroundColor: C.white, borderRadius: 16, padding: 16,
     shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
@@ -413,6 +453,14 @@ const makeStyles = (C) => StyleSheet.create({
   },
   disclaimerTitle: { fontSize: 14, fontWeight: '700', color: C.text },
   disclaimerSub: { fontSize: 12, color: C.textMuted },
+
+  guideBtn: {
+    backgroundColor: C.white, borderRadius: 16, padding: 16, marginTop: 10,
+    shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
+    borderWidth: 1, borderColor: C.creamBorder,
+  },
+  guideBtnTitle: { fontSize: 14, fontWeight: '700', color: C.text },
+  guideBtnSub: { fontSize: 12, color: C.textMuted },
 
   // Modal styles
   modalContainer: { flex: 1, backgroundColor: '#f9f6f0' },

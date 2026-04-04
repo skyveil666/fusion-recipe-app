@@ -7,8 +7,10 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
+import Purchases from 'react-native-purchases';
 
 import { AppProvider } from './src/AppContext';
+import { REVENUECAT_API_KEY } from './src/constants';
 import HomeScreen         from './src/screens/HomeScreen';
 import FusionSelectScreen from './src/screens/FusionSelectScreen';
 import SingleRecipeScreen from './src/screens/SingleRecipeScreen';
@@ -22,6 +24,8 @@ import OnboardingScreen   from './src/screens/OnboardingScreen';
 import PhotoRecipeScreen  from './src/screens/PhotoRecipeScreen';
 import ShoppingListScreen from './src/screens/ShoppingListScreen';
 import DishFusionScreen   from './src/screens/DishFusionScreen';
+import LeftoverScreen     from './src/screens/LeftoverScreen';
+import PaywallScreen      from './src/screens/PaywallScreen';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -45,6 +49,7 @@ class ErrorBoundary extends Component {
 export default function App() {
   useEffect(() => {
     SplashScreen.hideAsync();
+    Purchases.configure({ apiKey: REVENUECAT_API_KEY });
   }, []);
 
   return (
@@ -71,6 +76,8 @@ export default function App() {
                 <Stack.Screen name="PhotoRecipe"   component={PhotoRecipeScreen} />
                 <Stack.Screen name="ShoppingList" component={ShoppingListScreen} />
                 <Stack.Screen name="DishFusion"   component={DishFusionScreen} />
+                <Stack.Screen name="Paywall"      component={PaywallScreen} />
+                <Stack.Screen name="Leftover"     component={LeftoverScreen} />
               </Stack.Navigator>
             </NavigationContainer>
           </AppProvider>

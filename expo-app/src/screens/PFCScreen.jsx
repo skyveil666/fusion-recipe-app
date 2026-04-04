@@ -1,13 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
-  StyleSheet, Switch,
+  StyleSheet, Switch, Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp, useTheme } from '../AppContext';
 import BottomNav from '../components/BottomNav';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { API_BASE } from '../constants';
+import UsageIndicator from '../components/UsageIndicator';
 
 const COOKING_TIMES = ['10分', '20分', '30分', '45分'];
 const MAIN_SERVINGS = ['1人前', '2人前', '3人前', '4人前'];
@@ -63,7 +64,7 @@ const PFC_LABELS = {
 };
 
 export default function PFCScreen({ navigation }) {
-  const { allergies, setAllergies, setRecipeResult, setRecipeSource, setFusionParams, addToHistory } = useApp();
+  const { allergies, setAllergies, setRecipeResult, setRecipeSource, setFusionParams, addToHistory, canGenerate: canUseRecipe, useRecipe } = useApp();
   const C = useTheme();
   const s = useMemo(() => makeStyles(C), [C]);
   const insets = useSafeAreaInsets();
@@ -133,6 +134,17 @@ export default function PFCScreen({ navigation }) {
   );
 
   const generate = async () => {
+    if (!canUseRecipe) {
+      Alert.alert(
+        '今月の回数を使い切りました',
+        'スタンダードプランに加入するか、\n回数を追加購入すると続けられます。',
+        [
+          { text: 'プランを見る', onPress: () => navigation.navigate('Paywall') },
+          { text: 'キャンセル', style: 'cancel' },
+        ]
+      );
+      return;
+    }
     setLoading(true); setGenError(null);
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 40000);
@@ -153,6 +165,7 @@ export default function PFCScreen({ navigation }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'server');
+      useRecipe();
       setRecipeResult(data.recipe);
       setRecipeSource('pfc');
       setFusionParams({ pfcPreset, pfc: isCustomOpen ? pfc : null, servings: effectiveServings, cookingTime, type: 'pfc' });
@@ -177,9 +190,12 @@ export default function PFCScreen({ navigation }) {
       <LoadingOverlay visible={loading} message="レシピを生成中..." />
       <View style={[s.screen, { flex: 1, marginTop: insets.top }]}>
         <View style={s.header}>
-          <TouchableOpacity onPress={() => navigation.navigate('Home')} style={s.backBtn}>
-            <Text style={s.backText}>‹ ホーム</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <TouchableOpacity onPress={() => navigation.navigate('Home')} style={s.backBtn}>
+              <Text style={s.backText}>‹ ホーム</Text>
+            </TouchableOpacity>
+            <UsageIndicator navigation={navigation} />
+          </View>
           <Text style={s.headerTitle}>🍽️ 栄養スタイル</Text>
           <Text style={s.headerSub}>食べ方に合わせてレシピを作ります</Text>
         </View>

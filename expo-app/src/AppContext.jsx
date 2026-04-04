@@ -1,10 +1,16 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { COLORS, DARK_COLORS } from './constants';
+import * as Application from 'expo-application';
+import { COLORS, DARK_COLORS, API_BASE } from './constants';
 
 const AppContext = createContext(null);
 
 const MAX_HISTORY = 20;
+
+const getCurrentMonth = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth() + 1}`;
+};
 
 const INITIAL_FUSION = {
   country1: '',
@@ -35,6 +41,71 @@ export function AppProvider({ children }) {
   const [hasSeenOnboarding, setHasSeenOnboardingState] = useState(false);
   const [darkMode, setDarkModeState] = useState(false);
 
+  // ── 利用回数管理 ──────────────────────────────────────
+  const [monthlyUsed,  setMonthlyUsedState]  = useState(0);
+  const [bonusRecipes, setBonusRecipesState] = useState(0);
+  const [isPremium,    setIsPremiumState]    = useState(false);
+
+  // 計算値
+  const monthlyLimit  = isPremium ? 20 : 5;
+  const remaining     = Math.max(0, monthlyLimit - monthlyUsed);
+  const canGenerate   = remaining > 0 || bonusRecipes > 0;
+
+  // 永続化ヘルパー
+  const setMonthlyUsed = (val) => {
+    const v = typeof val === 'function' ? val(monthlyUsed) : val;
+    setMonthlyUsedState(v);
+    AsyncStorage.setItem('fr_monthly_used', String(v));
+  };
+  const setBonusRecipes = (val) => {
+    const v = typeof val === 'function' ? val(bonusRecipes) : val;
+    setBonusRecipesState(v);
+    AsyncStorage.setItem('fr_bonus_recipes', String(v));
+  };
+  const setIsPremium = async (val) => {
+    setIsPremiumState(val);
+    AsyncStorage.setItem('fr_is_premium', val ? '1' : '');
+    try {
+      const deviceId = await getDeviceId();
+      await fetch(`${API_BASE}/api/usage/${deviceId}/premium`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isPremium: val }),
+      });
+    } catch { /* ignore */ }
+  };
+
+  // 1回消費（生成成功時に呼ぶ）— ローカル楽観更新→サーバー確定
+  const useRecipe = async () => {
+    if (remaining > 0) {
+      setMonthlyUsed(prev => prev + 1);
+    } else if (bonusRecipes > 0) {
+      setBonusRecipes(prev => prev - 1);
+    }
+    try {
+      const deviceId = await getDeviceId();
+      const res = await fetch(`${API_BASE}/api/usage/${deviceId}/consume`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setMonthlyUsedState(data.monthlyUsed);
+        setBonusRecipesState(data.bonusRecipes);
+      }
+    } catch { /* サーバー同期失敗時はローカル値を維持 */ }
+  };
+
+  // 追加購入で回数を追加
+  const addBonusRecipes = async (n) => {
+    setBonusRecipes(prev => prev + n);
+    try {
+      const deviceId = await getDeviceId();
+      await fetch(`${API_BASE}/api/usage/${deviceId}/bonus`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: n }),
+      });
+    } catch { /* ignore */ }
+  };
+
   const setHasSeenOnboarding = (val) => {
     setHasSeenOnboardingState(val);
     AsyncStorage.setItem('fr_onboarding', val ? '1' : '');
@@ -56,6 +127,42 @@ export function AppProvider({ children }) {
     AsyncStorage.setItem('fr_avoid_methods', JSON.stringify(v));
   };
 
+  // ── デバイスID（サーバー同期用） ──────────────────────────
+  const deviceIdRef = useRef(null);
+
+  const getDeviceId = async () => {
+    if (deviceIdRef.current) return deviceIdRef.current;
+    // Android IDを優先（再インストール後も同じIDが返る）
+    let id = null;
+    try {
+      id = Application.getAndroidId();
+    } catch {}
+    if (!id) {
+      // フォールバック：AsyncStorageのランダムID（エミュレータ等）
+      id = await AsyncStorage.getItem('fr_device_id');
+      if (!id) {
+        id = 'dev_' + Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
+        await AsyncStorage.setItem('fr_device_id', id);
+      }
+    }
+    deviceIdRef.current = id;
+    return id;
+  };
+
+  const syncWithServer = async (deviceId) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/usage/${deviceId}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setMonthlyUsedState(data.monthlyUsed ?? 0);
+      setBonusRecipesState(data.bonusRecipes ?? 0);
+      setIsPremiumState(data.isPremium ?? false);
+      AsyncStorage.setItem('fr_monthly_used', String(data.monthlyUsed ?? 0));
+      AsyncStorage.setItem('fr_bonus_recipes', String(data.bonusRecipes ?? 0));
+      AsyncStorage.setItem('fr_is_premium', data.isPremium ? '1' : '');
+    } catch { /* ネットワークエラー時はローカルデータを使用 */ }
+  };
+
   // Track whether initial load is complete to avoid overwriting persisted data
   const loaded = useRef(false);
 
@@ -71,7 +178,11 @@ export function AppProvider({ children }) {
       AsyncStorage.getItem('fr_shopping'),
       AsyncStorage.getItem('fr_dislikes'),
       AsyncStorage.getItem('fr_avoid_methods'),
-    ]).then(([favs, hist, alls, countries, onboarding, dark, shopping, dis, avoid]) => {
+      AsyncStorage.getItem('fr_monthly_used'),
+      AsyncStorage.getItem('fr_bonus_recipes'),
+      AsyncStorage.getItem('fr_is_premium'),
+      AsyncStorage.getItem('fr_last_reset'),
+    ]).then(([favs, hist, alls, countries, onboarding, dark, shopping, dis, avoid, mUsed, bonus, premium, lastReset]) => {
       if (favs)       setFavorites(JSON.parse(favs));
       if (hist)       setHistory(JSON.parse(hist));
       if (alls)       setAllergies(JSON.parse(alls));
@@ -81,7 +192,22 @@ export function AppProvider({ children }) {
       if (shopping)   setShoppingList(JSON.parse(shopping));
       if (dis)        setDislikesState(JSON.parse(dis));
       if (avoid)      setAvoidMethodsState(JSON.parse(avoid));
+      if (bonus)      setBonusRecipesState(parseInt(bonus, 10));
+      if (premium)    setIsPremiumState(true);
+
+      // 月次リセット
+      const currentMonth = getCurrentMonth();
+      if (!lastReset || lastReset !== currentMonth) {
+        setMonthlyUsedState(0);
+        AsyncStorage.setItem('fr_monthly_used', '0');
+        AsyncStorage.setItem('fr_last_reset', currentMonth);
+      } else if (mUsed) {
+        setMonthlyUsedState(parseInt(mUsed, 10));
+      }
+
       loaded.current = true;
+      // サーバーと同期（ローカルデータ読み込み後）
+      getDeviceId().then(id => syncWithServer(id));
     });
   }, []);
 
@@ -197,6 +323,8 @@ export function AppProvider({ children }) {
       favoriteCountries, toggleFavoriteCountry,
       hasSeenOnboarding, setHasSeenOnboarding,
       darkMode, setDarkMode,
+      monthlyUsed, monthlyLimit, remaining, bonusRecipes, isPremium,
+      canGenerate, useRecipe, addBonusRecipes, setIsPremium,
     }}>
       {children}
     </AppContext.Provider>

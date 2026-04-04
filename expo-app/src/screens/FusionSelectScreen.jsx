@@ -9,6 +9,7 @@ import BottomNav from '../components/BottomNav';
 import LoadingOverlay from '../components/LoadingOverlay';
 import MapSelectModal from '../components/MapSelectModal';
 import { COUNTRIES_BY_REGION, JAPAN_MUNICIPALITIES, API_BASE } from '../constants';
+import UsageIndicator from '../components/UsageIndicator';
 
 const MAIN_SERVINGS = ['1人前', '2人前', '3人前', '4人前'];
 const COOKING_TIMES = ['10分', '20分', '30分', '45分'];
@@ -112,6 +113,7 @@ export default function FusionSelectScreen({ navigation }) {
     setRecipeResult, setRecipeSource,
     favoriteCountries, toggleFavoriteCountry,
     addToHistory,
+    canGenerate: canUseRecipe, useRecipe,
   } = useApp();
   const C = useTheme();
   const s = useMemo(() => makeStyles(C), [C]);
@@ -214,6 +216,17 @@ export default function FusionSelectScreen({ navigation }) {
       Alert.alert('入力エラー', '2つの国／地域を選択してください');
       return;
     }
+    if (!canUseRecipe) {
+      Alert.alert(
+        '今月の回数を使い切りました',
+        'スタンダードプランに加入するか、\n回数を追加購入すると続けられます。',
+        [
+          { text: 'プランを見る', onPress: () => navigation.navigate('Paywall') },
+          { text: 'キャンセル', style: 'cancel' },
+        ]
+      );
+      return;
+    }
     setLoading(true);
     setGenError(null);
     const controller = new AbortController();
@@ -229,6 +242,7 @@ export default function FusionSelectScreen({ navigation }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'server');
+      useRecipe();
       setRecipeResult(data.recipe);
       setRecipeSource('fusion');
       addToHistory(data.recipe);
@@ -262,9 +276,12 @@ export default function FusionSelectScreen({ navigation }) {
 
         {/* Header */}
         <View style={s.header}>
-          <TouchableOpacity onPress={() => navigation.navigate('Home')} style={s.backBtn}>
-            <Text style={s.backText}>‹ ホーム</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <TouchableOpacity onPress={() => navigation.navigate('Home')} style={s.backBtn}>
+              <Text style={s.backText}>‹ ホーム</Text>
+            </TouchableOpacity>
+            <UsageIndicator navigation={navigation} />
+          </View>
           <Text style={s.headerTitle}>世界の味を発見しよう</Text>
           <Text style={s.headerSub}>2つの国や市町村を入力してフュージョンレシピを作成</Text>
         </View>
@@ -355,7 +372,7 @@ export default function FusionSelectScreen({ navigation }) {
             <View style={s.cardHeaderRow}>
               <View style={s.cardHeader}>
                 <Text style={s.cardEmoji}>🥗</Text>
-                <Text style={s.cardTitle}>食材・条件</Text>
+                <Text style={s.cardTitle}>使いたい食材や条件</Text>
               </View>
               <Switch
                 value={isIngEnabled}
@@ -397,7 +414,7 @@ export default function FusionSelectScreen({ navigation }) {
 
                 {/* 除外キーワード */}
                 <View style={s.divider} />
-                <Text style={s.excludeLabel}>🚫 除外キーワード</Text>
+                <Text style={s.excludeLabel}>🚫 苦手な食材・避けたい調理法</Text>
                 <Text style={s.subLabel}>含めたくない食材や調理法を入力してください</Text>
                 <View style={{ flexDirection: 'row', gap: 8 }}>
                   <TextInput
@@ -509,6 +526,20 @@ export default function FusionSelectScreen({ navigation }) {
               </>
             )}
           </View>
+
+          {/* 生成前の確認サマリー */}
+          {(p.country1 || p.country2) && (
+            <View style={s.confirmSummary}>
+              <Text style={s.confirmLabel}>📋 今の設定</Text>
+              <Text style={s.confirmText}>
+                {[
+                  p.country1 && p.country2 ? `${p.country1} × ${p.country2}` : (p.country1 || p.country2),
+                  isCookingTimeEnabled && cookingTime ? cookingTime : null,
+                  isServingsEnabled ? (isCustomServings ? `${customServingsCount}人前` : p.servings || null) : null,
+                ].filter(Boolean).join('　/　')}
+              </Text>
+            </View>
+          )}
 
           {/* ⑥ レシピを生成するボタン */}
           <TouchableOpacity
@@ -675,9 +706,23 @@ const makeStyles = (C) => StyleSheet.create({
   tagExclude: { backgroundColor: '#fff1f0', borderColor: '#fca5a5' },
   tagExcludeText: { color: '#b91c1c' },
 
+  confirmSummary: {
+    backgroundColor: C.cream,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: C.primary + '44',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginTop: 4,
+    marginBottom: 2,
+    gap: 3,
+  },
+  confirmLabel: { fontSize: 11, fontWeight: '700', color: C.primary, opacity: 0.7 },
+  confirmText: { fontSize: 14, fontWeight: '600', color: C.text, lineHeight: 20 },
+
   generateBtn: {
     backgroundColor: C.primary, borderRadius: 16,
-    paddingVertical: 16, alignItems: 'center', marginTop: 4,
+    paddingVertical: 16, alignItems: 'center', marginTop: 8,
   },
   generateText: { color: '#fff', fontSize: 16, fontWeight: '700' },
 

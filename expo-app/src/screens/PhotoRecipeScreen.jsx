@@ -9,12 +9,13 @@ import { useApp, useTheme } from '../AppContext';
 import BottomNav from '../components/BottomNav';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { API_BASE } from '../constants';
+import UsageIndicator from '../components/UsageIndicator';
 
 const SERVINGS_OPTIONS = ['1人前', '2人前', '3人前', '4人前'];
 
 // ── step: 'idle' | 'detecting' | 'review' | 'generating'
 export default function PhotoRecipeScreen({ navigation }) {
-  const { allergies, setAllergies, setRecipeResult, setRecipeSource, setFusionParams, addToHistory } = useApp();
+  const { allergies, setAllergies, setRecipeResult, setRecipeSource, setFusionParams, addToHistory, canGenerate: canUseRecipe, useRecipe } = useApp();
   const C = useTheme();
   const s = useMemo(() => makeStyles(C), [C]);
   const insets = useSafeAreaInsets();
@@ -100,6 +101,17 @@ export default function PhotoRecipeScreen({ navigation }) {
       Alert.alert('食材を選んでください', '少なくとも1つの食材を選択してください。');
       return;
     }
+    if (!canUseRecipe) {
+      Alert.alert(
+        '今月の回数を使い切りました',
+        'スタンダードプランに加入するか、\n回数を追加購入すると続けられます。',
+        [
+          { text: 'プランを見る', onPress: () => navigation.navigate('Paywall') },
+          { text: 'キャンセル', style: 'cancel' },
+        ]
+      );
+      return;
+    }
     setStep('generating');
     setGenError(null);
     const controller = new AbortController();
@@ -121,6 +133,7 @@ export default function PhotoRecipeScreen({ navigation }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'server');
+      useRecipe();
       setRecipeResult(data.recipe);
       setRecipeSource('photo');
       setFusionParams({ type: 'photo', servings });
@@ -153,9 +166,12 @@ export default function PhotoRecipeScreen({ navigation }) {
       />
       <View style={[s.screen, { flex: 1, marginTop: insets.top }]}>
         <View style={s.header}>
-          <TouchableOpacity onPress={() => navigation.navigate('Home')} style={s.backBtn}>
-            <Text style={s.backText}>‹ ホーム</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <TouchableOpacity onPress={() => navigation.navigate('Home')} style={s.backBtn}>
+              <Text style={s.backText}>‹ ホーム</Text>
+            </TouchableOpacity>
+            <UsageIndicator navigation={navigation} />
+          </View>
           <Text style={s.headerTitle}>📷 写真でかんたん一品</Text>
           <Text style={s.headerSub}>15分以内で作れるすぐ使える一品を提案</Text>
         </View>
@@ -251,7 +267,7 @@ export default function PhotoRecipeScreen({ navigation }) {
                 <View style={s.cardHeaderRow}>
                   <View style={s.cardHeader}>
                     <Text style={s.cardEmoji}>🚫</Text>
-                    <Text style={s.cardTitle}>除外キーワード（任意）</Text>
+                    <Text style={s.cardTitle}>苦手な食材・避けたい調理法（任意）</Text>
                   </View>
                   <Switch
                     value={isExcludeEnabled}
@@ -276,8 +292,8 @@ export default function PhotoRecipeScreen({ navigation }) {
                         style={[s.excludeInput, { flex: 1 }]}
                         onPress={() => {
                           Alert.prompt(
-                            '除外キーワード',
-                            '含めたくない食材・調理法を入力',
+                            '苦手な食材・避けたい調理法',
+                            '含めたくない食材や調理法を入力',
                             (text) => {
                               if (text?.trim() && !localAllergies.includes(text.trim())) {
                                 setLocalAllergies([...localAllergies, text.trim()]);

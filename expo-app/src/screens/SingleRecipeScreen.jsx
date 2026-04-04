@@ -8,6 +8,8 @@ import { useApp, useTheme } from '../AppContext';
 import BottomNav from '../components/BottomNav';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { COUNTRIES_BY_REGION, JAPAN_MUNICIPALITIES, API_BASE } from '../constants';
+import TastePreferenceCard from '../components/TastePreferenceCard';
+import UsageIndicator from '../components/UsageIndicator';
 
 const COOKING_TIMES = ['10分', '20分', '30分', '45分'];
 const CATEGORIES = ['主菜', '副菜', 'スープ', 'デザート'];
@@ -15,7 +17,7 @@ const MAIN_SERVINGS = ['1人前', '2人前', '3人前', '4人前'];
 const COOKING_STYLES = ['和食', 'イタリアン', '中華', '韓国風', '洋食', 'エスニック'];
 
 export default function SingleRecipeScreen({ navigation }) {
-  const { allergies, setAllergies, setRecipeResult, setRecipeSource, setFusionParams, addToHistory, favoriteCountries, toggleFavoriteCountry } = useApp();
+  const { allergies, setAllergies, setRecipeResult, setRecipeSource, setFusionParams, addToHistory, favoriteCountries, toggleFavoriteCountry, canGenerate, useRecipe } = useApp();
   const C = useTheme();
   const s = useMemo(() => makeStyles(C), [C]);
   const insets = useSafeAreaInsets();
@@ -31,6 +33,7 @@ export default function SingleRecipeScreen({ navigation }) {
   const [ingredients, setIngredients] = useState([]);
   const [newIng, setNewIng] = useState('');
   const [newExclude, setNewExclude] = useState('');
+  const [tastePrefs, setTastePrefs] = useState(null);
   const [loading, setLoading] = useState(false);
   const [genError, setGenError] = useState(null);
 
@@ -55,6 +58,17 @@ export default function SingleRecipeScreen({ navigation }) {
 
   const generate = async () => {
     if (!country) { Alert.alert('入力エラー', '地域・国を入力してください'); return; }
+    if (!canGenerate) {
+      Alert.alert(
+        '今月の回数を使い切りました',
+        'スタンダードプランに加入するか、\n回数を追加購入すると続けられます。',
+        [
+          { text: 'プランを見る', onPress: () => navigation.navigate('Paywall') },
+          { text: 'キャンセル', style: 'cancel' },
+        ]
+      );
+      return;
+    }
     setLoading(true); setGenError(null);
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 40000);
@@ -65,6 +79,7 @@ export default function SingleRecipeScreen({ navigation }) {
         ingredients: isIngEnabled ? ingredients : [],
         allergies,
         cookingTime: isCookingTimeEnabled ? cookingTime : '',
+        tastePrefs: tastePrefs || null,
       };
       const res = await fetch(`${API_BASE}/api/recipe`, {
         method: 'POST',
@@ -74,6 +89,7 @@ export default function SingleRecipeScreen({ navigation }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'server');
+      useRecipe();
       setRecipeResult(data.recipe);
       setRecipeSource('single');
       setFusionParams({ country1: country, category, servings, cookingTime: isCookingTimeEnabled ? cookingTime : '', type: 'single' });
@@ -91,9 +107,12 @@ export default function SingleRecipeScreen({ navigation }) {
       <LoadingOverlay visible={loading} message="レシピを生成中..." />
       <View style={[s.screen, { flex: 1, marginTop: insets.top }]}>
         <View style={s.header}>
-          <TouchableOpacity onPress={() => navigation.navigate('Home')} style={s.backBtn}>
-            <Text style={s.backText}>‹ ホーム</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <TouchableOpacity onPress={() => navigation.navigate('Home')} style={s.backBtn}>
+              <Text style={s.backText}>‹ ホーム</Text>
+            </TouchableOpacity>
+            <UsageIndicator navigation={navigation} />
+          </View>
           <Text style={s.headerTitle}>🍳 シングルレシピ</Text>
           <Text style={s.headerSub}>1つの地域・国からレシピを生成</Text>
         </View>
@@ -229,12 +248,19 @@ export default function SingleRecipeScreen({ navigation }) {
             </View>
           </View>
 
+          {/* 味の好み */}
+          <TastePreferenceCard
+            value={tastePrefs}
+            onChange={setTastePrefs}
+            accentColor="#1a4a80"
+          />
+
           {/* 食材・除外 */}
           <View style={s.card}>
             <View style={s.cardHeaderRow}>
               <View style={s.cardHeader}>
                 <Text style={s.cardEmoji}>🥗</Text>
-                <Text style={s.cardTitle}>食材・条件（任意）</Text>
+                <Text style={s.cardTitle}>使いたい食材や条件（任意）</Text>
               </View>
               <Switch value={isIngEnabled} onValueChange={setIsIngEnabled} trackColor={{ false: '#d1d5db', true: C.primary }} thumbColor={C.white} />
             </View>
@@ -254,7 +280,7 @@ export default function SingleRecipeScreen({ navigation }) {
                   </View>
                 )}
                 <View style={s.divider} />
-                <Text style={s.excludeLabel}>🚫 除外キーワード</Text>
+                <Text style={s.excludeLabel}>🚫 苦手な食材・避けたい調理法</Text>
                 <View style={{ flexDirection: 'row', gap: 8 }}>
                   <TextInput style={[s.input, { flex: 1 }]} value={newExclude} onChangeText={setNewExclude} onSubmitEditing={addExclude} placeholder="含めたくない食材・調理法" placeholderTextColor={C.textMuted} returnKeyType="done" />
                   <TouchableOpacity style={s.addBtn} onPress={addExclude}><Text style={s.addBtnText}>追加</Text></TouchableOpacity>
@@ -271,6 +297,21 @@ export default function SingleRecipeScreen({ navigation }) {
               </>
             )}
           </View>
+
+          {/* 生成前の確認サマリー */}
+          {country && (
+            <View style={s.confirmSummary}>
+              <Text style={s.confirmLabel}>📋 今の設定</Text>
+              <Text style={s.confirmText}>
+                {[
+                  country,
+                  category,
+                  isCookingTimeEnabled && cookingTime ? cookingTime : null,
+                  servings,
+                ].filter(Boolean).join('　/　')}
+              </Text>
+            </View>
+          )}
 
           {/* 生成ボタン */}
           <TouchableOpacity style={s.generateBtn} onPress={generate} disabled={loading} activeOpacity={0.85}>
@@ -346,7 +387,14 @@ const makeStyles = (C) => StyleSheet.create({
   tagExclude: { backgroundColor: '#fff1f0', borderColor: '#fca5a5' },
   tagExcludeText: { color: '#b91c1c' },
   excludeLabel: { fontSize: 13, fontWeight: '600', color: C.textSub, marginBottom: 6 },
-  generateBtn: { backgroundColor: C.primary, borderRadius: 16, paddingVertical: 18, alignItems: 'center', marginTop: 4 },
+  confirmSummary: {
+    backgroundColor: C.cream, borderRadius: 12, borderWidth: 1,
+    borderColor: C.primary + '44', paddingHorizontal: 14, paddingVertical: 10,
+    marginTop: 4, marginBottom: 2, gap: 3,
+  },
+  confirmLabel: { fontSize: 11, fontWeight: '700', color: C.primary, opacity: 0.7 },
+  confirmText: { fontSize: 14, fontWeight: '600', color: C.text, lineHeight: 20 },
+  generateBtn: { backgroundColor: C.primary, borderRadius: 16, paddingVertical: 18, alignItems: 'center', marginTop: 8 },
   generateText: { color: '#fff', fontSize: 17, fontWeight: '700' },
   errorCard: { backgroundColor: '#fff1f0', borderRadius: 14, borderWidth: 1, borderColor: '#fca5a5', padding: 16, alignItems: 'center', gap: 8, marginTop: 4 },
   errorIcon: { fontSize: 32 },
