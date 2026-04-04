@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView, StyleSheet,
   TextInput, Switch, Alert,
@@ -33,6 +33,10 @@ export default function DishFusionScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
 
   const canGenerate = dishName.trim().length > 0 && addIngredient.trim().length > 0;
+
+  useEffect(() => {
+    navigation.setOptions({ gestureEnabled: !loading });
+  }, [loading, navigation]);
 
   const generate = async () => {
     if (!canGenerate) {
@@ -87,6 +91,7 @@ export default function DishFusionScreen({ navigation }) {
         type: 'dish_fusion',
       });
       if (data.shareId) addToHistory({ id: data.shareId, recipe: data.recipe, type: 'dish_fusion' });
+      if (!navigation.isFocused()) return;
       navigation.navigate('Result');
     } catch (e) {
       Alert.alert('エラー', 'レシピの生成に失敗しました。もう一度お試しください。');

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
   StyleSheet, Switch, Alert,
@@ -83,6 +83,10 @@ export default function PFCScreen({ navigation }) {
   const [newExclude, setNewExclude] = useState('');
   const [loading, setLoading] = useState(false);
   const [genError, setGenError] = useState(null);
+
+  useEffect(() => {
+    navigation.setOptions({ gestureEnabled: !loading });
+  }, [loading, navigation]);
 
   const selectPreset = (id) => {
     setPfcPreset(id);
@@ -170,6 +174,7 @@ export default function PFCScreen({ navigation }) {
       setRecipeSource('pfc');
       setFusionParams({ pfcPreset, pfc: isCustomOpen ? pfc : null, servings: effectiveServings, cookingTime, type: 'pfc' });
       addToHistory(data.recipe);
+      if (!navigation.isFocused()) return;
       navigation.navigate('Result');
     } catch (e) {
       if (e.name === 'AbortError') setGenError({ type: 'timeout', msg: '生成に時間がかかりすぎました。\nもう一度試してみてください。' });

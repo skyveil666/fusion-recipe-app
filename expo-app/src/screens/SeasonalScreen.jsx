@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
   StyleSheet, Alert, Switch,
@@ -110,6 +110,10 @@ export default function SeasonalScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [genError, setGenError] = useState(null);
 
+  useEffect(() => {
+    navigation.setOptions({ gestureEnabled: !loading });
+  }, [loading, navigation]);
+
   const seasonData = SEASONAL_DATA[season];
 
   const addExclude = () => {
@@ -162,6 +166,7 @@ export default function SeasonalScreen({ navigation }) {
         cookingTime: isCookingTimeEnabled ? cookingTime : '',
       });
       addToHistory(data.recipe);
+      if (!navigation.isFocused()) return;
       navigation.navigate('Result');
     } catch (e) {
       if (e.name === 'AbortError') setGenError({ type: 'timeout', msg: '生成に時間がかかりすぎました。\nもう一度試してみてください。' });

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
   StyleSheet, Alert, Switch,
@@ -36,6 +36,10 @@ export default function SingleRecipeScreen({ navigation }) {
   const [tastePrefs, setTastePrefs] = useState(null);
   const [loading, setLoading] = useState(false);
   const [genError, setGenError] = useState(null);
+
+  useEffect(() => {
+    navigation.setOptions({ gestureEnabled: !loading });
+  }, [loading, navigation]);
 
   const recentRef = useRef([]);
 
@@ -94,6 +98,7 @@ export default function SingleRecipeScreen({ navigation }) {
       setRecipeSource('single');
       setFusionParams({ country1: country, category, servings, cookingTime: isCookingTimeEnabled ? cookingTime : '', type: 'single' });
       addToHistory(data.recipe);
+      if (!navigation.isFocused()) return;
       navigation.navigate('Result');
     } catch (e) {
       if (e.name === 'AbortError') setGenError({ type: 'timeout', msg: '生成に時間がかかりすぎました。\nもう一度試してみてください。' });

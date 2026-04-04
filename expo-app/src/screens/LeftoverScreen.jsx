@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView, StyleSheet,
   TextInput, Switch, Alert,
@@ -37,6 +37,10 @@ export default function LeftoverScreen({ navigation }) {
   const [loading, setLoading]                 = useState(false);
 
   const canGenerate = leftoverText.trim().length > 0;
+
+  useEffect(() => {
+    navigation.setOptions({ gestureEnabled: !loading });
+  }, [loading, navigation]);
 
   const generate = async () => {
     if (!canGenerate) {
@@ -77,7 +81,11 @@ export default function LeftoverScreen({ navigation }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'leftover', params }),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        let errBody = '';
+        try { errBody = JSON.stringify(await res.json()); } catch {}
+        throw new Error(`HTTP ${res.status}: ${errBody}`);
+      }
       useRecipe();
       const data = await res.json();
 
@@ -85,9 +93,10 @@ export default function LeftoverScreen({ navigation }) {
       setRecipeSource('leftover');
       setFusionParams({ leftoverText: leftoverText.trim(), leftoverType, cookingTime, servings, type: 'leftover' });
       if (data.shareId) addToHistory({ id: data.shareId, recipe: data.recipe, type: 'leftover' });
+      if (!navigation.isFocused()) return;
       navigation.navigate('Result');
     } catch (e) {
-      Alert.alert('エラー', 'レシピの生成に失敗しました。もう一度お試しください。');
+      Alert.alert('エラー', e.message || 'レシピの生成に失敗しました。もう一度お試しください。');
     } finally {
       setLoading(false);
     }

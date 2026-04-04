@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
   StyleSheet, ActivityIndicator, Switch, Alert,
@@ -131,6 +131,10 @@ export default function FusionSelectScreen({ navigation }) {
   const [customServingsCount, setCustomServingsCount] = useState(5);
   const [isCustomServings, setIsCustomServings] = useState(false);
 
+  useEffect(() => {
+    navigation.setOptions({ gestureEnabled: !loading });
+  }, [loading, navigation]);
+
   const set = (k, v) => setFusionParams((prev) => ({ ...prev, [k]: v }));
 
   // 直近4カ国を記憶して重複排除
@@ -246,6 +250,7 @@ export default function FusionSelectScreen({ navigation }) {
       setRecipeResult(data.recipe);
       setRecipeSource('fusion');
       addToHistory(data.recipe);
+      if (!navigation.isFocused()) return;
       navigation.navigate('Result');
     } catch (e) {
       if (e.name === 'AbortError') {

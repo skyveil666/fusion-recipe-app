@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView, StyleSheet,
   Image, Alert, Switch,
@@ -21,6 +21,10 @@ export default function PhotoRecipeScreen({ navigation }) {
   const insets = useSafeAreaInsets();
 
   const [step, setStep] = useState('idle');
+
+  useEffect(() => {
+    navigation.setOptions({ gestureEnabled: step !== 'detecting' && step !== 'generating' });
+  }, [step, navigation]);
   const [imageUri, setImageUri] = useState(null);
   const [imageBase64, setImageBase64] = useState(null);
   const [detectedIngredients, setDetectedIngredients] = useState([]);
@@ -138,6 +142,7 @@ export default function PhotoRecipeScreen({ navigation }) {
       setRecipeSource('photo');
       setFusionParams({ type: 'photo', servings });
       addToHistory(data.recipe);
+      if (!navigation.isFocused()) return;
       navigation.navigate('Result');
     } catch (e) {
       setStep('review');
