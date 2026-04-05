@@ -826,7 +826,7 @@ ${styleClause}
 
 【タイトル】親しみやすく、アレンジ感が伝わる料理名にする（難しい漢字・専門用語は避ける）
 【紹介文（2文のみ）】1文目: この料理の味・食感のイメージ。2文目: 「${cookingTime}」「残り物活用」を感じさせる一文。
-【条件】- 人数: ${servings}`;
+【条件】- 人数: ${servings}${allergyClause}`;
 
     } else {
       const { ingredients, category, servings } = params;

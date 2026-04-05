@@ -81,22 +81,23 @@ export default function LeftoverScreen({ navigation }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'leftover', params }),
       });
-      if (!res.ok) {
-        let errBody = '';
-        try { errBody = JSON.stringify(await res.json()); } catch {}
-        throw new Error(`HTTP ${res.status}: ${errBody}`);
-      }
+      if (!res.ok) throw new Error(res.status === 500 ? 'server' : 'network');
       useRecipe();
       const data = await res.json();
 
       setRecipeResult(data.recipe);
       setRecipeSource('leftover');
       setFusionParams({ leftoverText: leftoverText.trim(), leftoverType, cookingTime, servings, type: 'leftover' });
-      if (data.shareId) addToHistory({ id: data.shareId, recipe: data.recipe, type: 'leftover' });
+      addToHistory(data.recipe);
       if (!navigation.isFocused()) return;
       navigation.navigate('Result');
     } catch (e) {
-      Alert.alert('エラー', e.message || 'レシピの生成に失敗しました。もう一度お試しください。');
+      if (e.message === 'network' || e.name === 'TypeError')
+        Alert.alert('接続エラー', 'インターネット接続を確認してください。');
+      else if (e.name === 'AbortError')
+        Alert.alert('タイムアウト', '生成に時間がかかりすぎました。\nもう一度試してください。');
+      else
+        Alert.alert('エラー', 'レシピの生成に失敗しました。\nもう一度お試しください。');
     } finally {
       setLoading(false);
     }
