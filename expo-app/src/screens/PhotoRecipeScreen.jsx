@@ -33,6 +33,7 @@ export default function PhotoRecipeScreen({ navigation }) {
   const [isExcludeEnabled, setIsExcludeEnabled] = useState(false);
   const [newExclude, setNewExclude] = useState('');
   const [localAllergies, setLocalAllergies] = useState([]);
+  const [showDetails, setShowDetails] = useState(false);
   const [genError, setGenError] = useState(null);
 
   const pickImage = async (useCamera) => {
@@ -267,64 +268,82 @@ export default function PhotoRecipeScreen({ navigation }) {
                 </View>
               </View>
 
-              {/* Exclude keywords */}
-              <View style={s.card}>
-                <View style={s.cardHeaderRow}>
-                  <View style={s.cardHeader}>
-                    <Text style={s.cardEmoji}>🚫</Text>
-                    <Text style={s.cardTitle}>苦手な食材・避けたい調理法（任意）</Text>
-                  </View>
-                  <Switch
-                    value={isExcludeEnabled}
-                    onValueChange={setIsExcludeEnabled}
-                    trackColor={{ false: '#d1d5db', true: '#b45309' }}
-                    thumbColor={C.white}
-                  />
+              {/* こだわり設定（折りたたみ） */}
+              <TouchableOpacity
+                style={s.detailsToggle}
+                onPress={() => setShowDetails(!showDetails)}
+                activeOpacity={0.8}
+              >
+                <View style={s.detailsToggleLeft}>
+                  <Text style={s.detailsToggleTitle}>⚙️ こだわり設定</Text>
+                  <Text style={s.detailsToggleHint}>任意 — 設定しなくても生成できます</Text>
                 </View>
-                {isExcludeEnabled && (
-                  <>
-                    <View style={{ flexDirection: 'row', gap: 8 }}>
-                      <View style={[s.input, { flex: 1, justifyContent: 'center' }]}>
-                        <Text
-                          style={{ color: newExclude ? C.text : C.textMuted, fontSize: 14 }}
-                          onPress={() => {}}
-                        />
+                <Text style={s.detailsToggleArrow}>{showDetails ? '▲' : '▼'}</Text>
+              </TouchableOpacity>
+
+              {showDetails && (
+                <View style={s.detailsContent}>
+                  {/* Exclude keywords */}
+                  <View style={s.card}>
+                    <View style={s.cardHeaderRow}>
+                      <View style={s.cardHeader}>
+                        <Text style={s.cardEmoji}>🚫</Text>
+                        <Text style={s.cardTitle}>苦手な食材・避けたい調理法（任意）</Text>
                       </View>
+                      <Switch
+                        value={isExcludeEnabled}
+                        onValueChange={setIsExcludeEnabled}
+                        trackColor={{ false: '#d1d5db', true: '#b45309' }}
+                        thumbColor={C.white}
+                      />
                     </View>
-                    {/* Simple tag input */}
-                    <View style={{ flexDirection: 'row', gap: 8 }}>
-                      <TouchableOpacity
-                        style={[s.excludeInput, { flex: 1 }]}
-                        onPress={() => {
-                          Alert.prompt(
-                            '苦手な食材・避けたい調理法',
-                            '含めたくない食材や調理法を入力',
-                            (text) => {
-                              if (text?.trim() && !localAllergies.includes(text.trim())) {
-                                setLocalAllergies([...localAllergies, text.trim()]);
-                              }
-                            },
-                            'plain-text',
-                            '',
-                            'default'
-                          );
-                        }}
-                      >
-                        <Text style={s.excludeInputText}>+ キーワードを追加</Text>
-                      </TouchableOpacity>
-                    </View>
-                    {localAllergies.length > 0 && (
-                      <View style={s.tagWrap}>
-                        {localAllergies.map((a) => (
-                          <TouchableOpacity key={a} style={s.tagExclude} onPress={() => setLocalAllergies(localAllergies.filter((x) => x !== a))}>
-                            <Text style={s.tagExcludeText}>{a} ×</Text>
+                    {isExcludeEnabled && (
+                      <>
+                        <View style={{ flexDirection: 'row', gap: 8 }}>
+                          <TouchableOpacity
+                            style={[s.excludeInput, { flex: 1 }]}
+                            onPress={() => {
+                              Alert.prompt(
+                                '苦手な食材・避けたい調理法',
+                                '含めたくない食材や調理法を入力',
+                                (text) => {
+                                  if (text?.trim() && !localAllergies.includes(text.trim())) {
+                                    setLocalAllergies([...localAllergies, text.trim()]);
+                                  }
+                                },
+                                'plain-text',
+                                '',
+                                'default'
+                              );
+                            }}
+                          >
+                            <Text style={s.excludeInputText}>+ キーワードを追加</Text>
                           </TouchableOpacity>
-                        ))}
-                      </View>
+                        </View>
+                        {localAllergies.length > 0 && (
+                          <View style={s.tagWrap}>
+                            {localAllergies.map((a) => (
+                              <TouchableOpacity key={a} style={s.tagExclude} onPress={() => setLocalAllergies(localAllergies.filter((x) => x !== a))}>
+                                <Text style={s.tagExcludeText}>{a} ×</Text>
+                              </TouchableOpacity>
+                            ))}
+                          </View>
+                        )}
+                      </>
                     )}
-                  </>
-                )}
-              </View>
+                  </View>
+                </View>
+              )}
+
+              {/* 今の設定サマリー */}
+              {selectedIngredients.length > 0 && (
+                <View style={s.confirmSummary}>
+                  <Text style={s.confirmLabel}>📋 今の設定</Text>
+                  <Text style={s.confirmText}>
+                    {[`食材 ${selectedIngredients.length}件`, servings].filter(Boolean).join('　/　')}
+                  </Text>
+                </View>
+              )}
 
               {/* Generate button */}
               <TouchableOpacity
@@ -414,6 +433,29 @@ const makeStyles = (C) => StyleSheet.create({
   tagWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
   tagExclude: { backgroundColor: '#fff1f0', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: '#fca5a5' },
   tagExcludeText: { fontSize: 13, color: '#b91c1c' },
+
+  detailsToggle: {
+    backgroundColor: C.white,
+    borderRadius: 16,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 6, elevation: 1,
+    borderWidth: 1, borderColor: C.creamBorder,
+  },
+  detailsToggleLeft: { flex: 1, gap: 2 },
+  detailsToggleTitle: { fontSize: 15, fontWeight: '700', color: C.text },
+  detailsToggleHint: { fontSize: 11, color: C.textMuted },
+  detailsToggleArrow: { fontSize: 14, color: C.textMuted, fontWeight: '600' },
+  detailsContent: { gap: 12 },
+  confirmSummary: {
+    backgroundColor: '#fff8f0', borderRadius: 12, borderWidth: 1,
+    borderColor: '#b45309' + '44', paddingHorizontal: 14, paddingVertical: 10,
+    marginTop: 4, marginBottom: 2, gap: 3,
+  },
+  confirmLabel: { fontSize: 11, fontWeight: '700', color: '#b45309', opacity: 0.7 },
+  confirmText: { fontSize: 14, fontWeight: '600', color: C.text, lineHeight: 20 },
 
   // Generate
   generateBtn: { backgroundColor: '#b45309', borderRadius: 16, paddingVertical: 18, alignItems: 'center', marginTop: 4 },

@@ -36,6 +36,7 @@ export default function SingleRecipeScreen({ navigation }) {
   const [tastePrefs, setTastePrefs] = useState(null);
   const [loading, setLoading] = useState(false);
   const [genError, setGenError] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
     navigation.setOptions({ gestureEnabled: !loading });
@@ -178,46 +179,6 @@ export default function SingleRecipeScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
-          {/* 料理スタイル */}
-          <View style={s.card}>
-            <View style={s.cardHeader}>
-              <Text style={s.cardEmoji}>🍴</Text>
-              <Text style={s.cardTitle}>料理スタイル（任意）</Text>
-            </View>
-            <View style={s.styleRow}>
-              {COOKING_STYLES.map((st) => (
-                <TouchableOpacity
-                  key={st}
-                  style={[s.styleChip, cookingStyle === st && s.styleChipActive]}
-                  onPress={() => setCookingStyle(cookingStyle === st ? '' : st)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[s.styleChipText, cookingStyle === st && s.styleChipTextActive]}>{st}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          {/* カテゴリー */}
-          <View style={s.card}>
-            <View style={s.cardHeader}>
-              <Text style={s.cardEmoji}>🍽️</Text>
-              <Text style={s.cardTitle}>料理カテゴリー</Text>
-            </View>
-            <View style={s.pillRow}>
-              {CATEGORIES.map((cat) => (
-                <TouchableOpacity
-                  key={cat}
-                  style={[s.pill, category === cat && s.pillActive]}
-                  onPress={() => setCategory(cat)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[s.pillText, category === cat && s.pillTextActive]}>{cat}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
           {/* 調理時間 */}
           <View style={s.card}>
             <View style={s.cardHeaderRow}>
@@ -253,55 +214,112 @@ export default function SingleRecipeScreen({ navigation }) {
             </View>
           </View>
 
-          {/* 味の好み */}
-          <TastePreferenceCard
-            value={tastePrefs}
-            onChange={setTastePrefs}
-            accentColor="#1a4a80"
-          />
-
-          {/* 食材・除外 */}
-          <View style={s.card}>
-            <View style={s.cardHeaderRow}>
-              <View style={s.cardHeader}>
-                <Text style={s.cardEmoji}>🥗</Text>
-                <Text style={s.cardTitle}>使いたい食材や条件（任意）</Text>
-              </View>
-              <Switch value={isIngEnabled} onValueChange={setIsIngEnabled} trackColor={{ false: '#d1d5db', true: C.primary }} thumbColor={C.white} />
+          {/* こだわり設定（折りたたみ） */}
+          <TouchableOpacity
+            style={s.detailsToggle}
+            onPress={() => setShowDetails(!showDetails)}
+            activeOpacity={0.8}
+          >
+            <View style={s.detailsToggleLeft}>
+              <Text style={s.detailsToggleTitle}>⚙️ こだわり設定</Text>
+              <Text style={s.detailsToggleHint}>任意 — 設定しなくても生成できます</Text>
             </View>
-            {isIngEnabled && (
-              <>
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <TextInput style={[s.input, { flex: 1 }]} value={newIng} onChangeText={setNewIng} onSubmitEditing={addIng} placeholder="使いたい食材を入力" placeholderTextColor={C.textMuted} returnKeyType="done" />
-                  <TouchableOpacity style={s.addBtn} onPress={addIng}><Text style={s.addBtnText}>追加</Text></TouchableOpacity>
+            <Text style={s.detailsToggleArrow}>{showDetails ? '▲' : '▼'}</Text>
+          </TouchableOpacity>
+
+          {showDetails && (
+            <View style={s.detailsContent}>
+              {/* カテゴリー */}
+              <View style={s.card}>
+                <View style={s.cardHeader}>
+                  <Text style={s.cardEmoji}>🍽️</Text>
+                  <Text style={s.cardTitle}>料理カテゴリー</Text>
                 </View>
-                {ingredients.length > 0 && (
-                  <View style={s.tagWrap}>
-                    {ingredients.map((ing) => (
-                      <TouchableOpacity key={ing} style={s.tag} onPress={() => setIngredients(ingredients.filter((i) => i !== ing))}>
-                        <Text style={s.tagText}>{ing} ×</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
-                <View style={s.divider} />
-                <Text style={s.excludeLabel}>🚫 苦手な食材・避けたい調理法</Text>
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <TextInput style={[s.input, { flex: 1 }]} value={newExclude} onChangeText={setNewExclude} onSubmitEditing={addExclude} placeholder="含めたくない食材・調理法" placeholderTextColor={C.textMuted} returnKeyType="done" />
-                  <TouchableOpacity style={s.addBtn} onPress={addExclude}><Text style={s.addBtnText}>追加</Text></TouchableOpacity>
+                <View style={s.pillRow}>
+                  {CATEGORIES.map((cat) => (
+                    <TouchableOpacity
+                      key={cat}
+                      style={[s.pill, category === cat && s.pillActive]}
+                      onPress={() => setCategory(cat)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={[s.pillText, category === cat && s.pillTextActive]}>{cat}</Text>
+                    </TouchableOpacity>
+                  ))}
                 </View>
-                {allergies.length > 0 && (
-                  <View style={s.tagWrap}>
-                    {allergies.map((a) => (
-                      <TouchableOpacity key={a} style={[s.tag, s.tagExclude]} onPress={() => setAllergies(allergies.filter((x) => x !== a))}>
-                        <Text style={[s.tagText, s.tagExcludeText]}>{a} ×</Text>
-                      </TouchableOpacity>
-                    ))}
+              </View>
+
+              {/* 料理スタイル */}
+              <View style={s.card}>
+                <View style={s.cardHeader}>
+                  <Text style={s.cardEmoji}>🍴</Text>
+                  <Text style={s.cardTitle}>料理スタイル（任意）</Text>
+                </View>
+                <View style={s.styleRow}>
+                  {COOKING_STYLES.map((st) => (
+                    <TouchableOpacity
+                      key={st}
+                      style={[s.styleChip, cookingStyle === st && s.styleChipActive]}
+                      onPress={() => setCookingStyle(cookingStyle === st ? '' : st)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={[s.styleChipText, cookingStyle === st && s.styleChipTextActive]}>{st}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* 味の好み */}
+              <TastePreferenceCard
+                value={tastePrefs}
+                onChange={setTastePrefs}
+                accentColor="#1a4a80"
+              />
+
+              {/* 食材・除外 */}
+              <View style={s.card}>
+                <View style={s.cardHeaderRow}>
+                  <View style={s.cardHeader}>
+                    <Text style={s.cardEmoji}>🥗</Text>
+                    <Text style={s.cardTitle}>使いたい食材や条件（任意）</Text>
                   </View>
+                  <Switch value={isIngEnabled} onValueChange={setIsIngEnabled} trackColor={{ false: '#d1d5db', true: C.primary }} thumbColor={C.white} />
+                </View>
+                {isIngEnabled && (
+                  <>
+                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                      <TextInput style={[s.input, { flex: 1 }]} value={newIng} onChangeText={setNewIng} onSubmitEditing={addIng} placeholder="使いたい食材を入力" placeholderTextColor={C.textMuted} returnKeyType="done" />
+                      <TouchableOpacity style={s.addBtn} onPress={addIng}><Text style={s.addBtnText}>追加</Text></TouchableOpacity>
+                    </View>
+                    {ingredients.length > 0 && (
+                      <View style={s.tagWrap}>
+                        {ingredients.map((ing) => (
+                          <TouchableOpacity key={ing} style={s.tag} onPress={() => setIngredients(ingredients.filter((i) => i !== ing))}>
+                            <Text style={s.tagText}>{ing} ×</Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+                    <View style={s.divider} />
+                    <Text style={s.excludeLabel}>🚫 苦手な食材・避けたい調理法</Text>
+                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                      <TextInput style={[s.input, { flex: 1 }]} value={newExclude} onChangeText={setNewExclude} onSubmitEditing={addExclude} placeholder="含めたくない食材・調理法" placeholderTextColor={C.textMuted} returnKeyType="done" />
+                      <TouchableOpacity style={s.addBtn} onPress={addExclude}><Text style={s.addBtnText}>追加</Text></TouchableOpacity>
+                    </View>
+                    {allergies.length > 0 && (
+                      <View style={s.tagWrap}>
+                        {allergies.map((a) => (
+                          <TouchableOpacity key={a} style={[s.tag, s.tagExclude]} onPress={() => setAllergies(allergies.filter((x) => x !== a))}>
+                            <Text style={[s.tagText, s.tagExcludeText]}>{a} ×</Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+                  </>
                 )}
-              </>
-            )}
-          </View>
+              </View>
+            </View>
+          )}
 
           {/* 生成前の確認サマリー */}
           {country && (
@@ -399,6 +417,21 @@ const makeStyles = (C) => StyleSheet.create({
   },
   confirmLabel: { fontSize: 11, fontWeight: '700', color: C.primary, opacity: 0.7 },
   confirmText: { fontSize: 14, fontWeight: '600', color: C.text, lineHeight: 20 },
+  detailsToggle: {
+    backgroundColor: C.white,
+    borderRadius: 16,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 6, elevation: 1,
+    borderWidth: 1, borderColor: C.creamBorder,
+  },
+  detailsToggleLeft: { flex: 1, gap: 2 },
+  detailsToggleTitle: { fontSize: 15, fontWeight: '700', color: C.text },
+  detailsToggleHint: { fontSize: 11, color: C.textMuted },
+  detailsToggleArrow: { fontSize: 14, color: C.textMuted, fontWeight: '600' },
+  detailsContent: { gap: 12 },
   generateBtn: { backgroundColor: C.primary, borderRadius: 16, paddingVertical: 18, alignItems: 'center', marginTop: 8 },
   generateText: { color: '#fff', fontSize: 17, fontWeight: '700' },
   errorCard: { backgroundColor: '#fff1f0', borderRadius: 14, borderWidth: 1, borderColor: '#fca5a5', padding: 16, alignItems: 'center', gap: 8, marginTop: 4 },

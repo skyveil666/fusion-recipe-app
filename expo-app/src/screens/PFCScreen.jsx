@@ -83,6 +83,7 @@ export default function PFCScreen({ navigation }) {
   const [newExclude, setNewExclude] = useState('');
   const [loading, setLoading] = useState(false);
   const [genError, setGenError] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
     navigation.setOptions({ gestureEnabled: !loading });
@@ -393,79 +394,96 @@ export default function PFCScreen({ navigation }) {
             )}
           </View>
 
-          {/* 食材・条件（任意） */}
-          <View style={s.card}>
-            <View style={s.cardHeaderRow}>
-              <View style={s.cardHeader}>
-                <Text style={s.cardEmoji}>🛒</Text>
-                <Text style={s.cardTitle}>使いたい食材（任意）</Text>
-              </View>
-              <Switch value={isIngEnabled} onValueChange={setIsIngEnabled} trackColor={{ false: '#d1d5db', true: C.primary }} thumbColor={C.white} />
+          {/* こだわり設定（折りたたみ） */}
+          <TouchableOpacity
+            style={s.detailsToggle}
+            onPress={() => setShowDetails(!showDetails)}
+            activeOpacity={0.8}
+          >
+            <View style={s.detailsToggleLeft}>
+              <Text style={s.detailsToggleTitle}>⚙️ こだわり設定</Text>
+              <Text style={s.detailsToggleHint}>任意 — 設定しなくても生成できます</Text>
             </View>
-            <Text style={s.cardDesc}>使いたい食材や入れたい条件を追加できます</Text>
-            {isIngEnabled && (
-              <>
-                <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
-                  <TextInput
-                    style={[s.input, { flex: 1 }]}
-                    value={newIng}
-                    onChangeText={setNewIng}
-                    onSubmitEditing={addIng}
-                    placeholder="例: 鶏肉、きのこ、野菜多め"
-                    placeholderTextColor={C.textMuted}
-                    returnKeyType="done"
-                  />
-                  <TouchableOpacity style={s.addBtn} onPress={addIng}><Text style={s.addBtnText}>追加</Text></TouchableOpacity>
-                </View>
-                {ingredients.length > 0 && (
-                  <View style={s.tagWrap}>
-                    {ingredients.map((ing) => (
-                      <TouchableOpacity key={ing} style={s.tag} onPress={() => setIngredients(ingredients.filter((i) => i !== ing))}>
-                        <Text style={s.tagText}>{ing} ×</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
-              </>
-            )}
-          </View>
+            <Text style={s.detailsToggleArrow}>{showDetails ? '▲' : '▼'}</Text>
+          </TouchableOpacity>
 
-          {/* 除外キーワード */}
-          <View style={s.card}>
-            <View style={s.cardHeaderRow}>
-              <View style={s.cardHeader}>
-                <Text style={s.cardEmoji}>🚫</Text>
-                <Text style={s.cardTitle}>苦手な食材・調理法（任意）</Text>
-              </View>
-              <Switch value={isExcludeEnabled} onValueChange={setIsExcludeEnabled} trackColor={{ false: '#d1d5db', true: C.primary }} thumbColor={C.white} />
-            </View>
-            <Text style={s.cardDesc}>苦手な食材や使いたくない調理法を除けます</Text>
-            {isExcludeEnabled && (
-              <>
-                <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
-                  <TextInput
-                    style={[s.input, { flex: 1 }]}
-                    value={newExclude}
-                    onChangeText={setNewExclude}
-                    onSubmitEditing={addExclude}
-                    placeholder="例: ピーマン、辛いもの、揚げ物"
-                    placeholderTextColor={C.textMuted}
-                    returnKeyType="done"
-                  />
-                  <TouchableOpacity style={s.addBtn} onPress={addExclude}><Text style={s.addBtnText}>追加</Text></TouchableOpacity>
-                </View>
-                {allergies.length > 0 && (
-                  <View style={s.tagWrap}>
-                    {allergies.map((a) => (
-                      <TouchableOpacity key={a} style={[s.tag, s.tagExclude]} onPress={() => setAllergies(allergies.filter((x) => x !== a))}>
-                        <Text style={[s.tagText, s.tagExcludeText]}>{a} ×</Text>
-                      </TouchableOpacity>
-                    ))}
+          {showDetails && (
+            <View style={s.detailsContent}>
+              {/* 食材・条件（任意） */}
+              <View style={s.card}>
+                <View style={s.cardHeaderRow}>
+                  <View style={s.cardHeader}>
+                    <Text style={s.cardEmoji}>🛒</Text>
+                    <Text style={s.cardTitle}>使いたい食材（任意）</Text>
                   </View>
+                  <Switch value={isIngEnabled} onValueChange={setIsIngEnabled} trackColor={{ false: '#d1d5db', true: C.primary }} thumbColor={C.white} />
+                </View>
+                <Text style={s.cardDesc}>使いたい食材や入れたい条件を追加できます</Text>
+                {isIngEnabled && (
+                  <>
+                    <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
+                      <TextInput
+                        style={[s.input, { flex: 1 }]}
+                        value={newIng}
+                        onChangeText={setNewIng}
+                        onSubmitEditing={addIng}
+                        placeholder="例: 鶏肉、きのこ、野菜多め"
+                        placeholderTextColor={C.textMuted}
+                        returnKeyType="done"
+                      />
+                      <TouchableOpacity style={s.addBtn} onPress={addIng}><Text style={s.addBtnText}>追加</Text></TouchableOpacity>
+                    </View>
+                    {ingredients.length > 0 && (
+                      <View style={s.tagWrap}>
+                        {ingredients.map((ing) => (
+                          <TouchableOpacity key={ing} style={s.tag} onPress={() => setIngredients(ingredients.filter((i) => i !== ing))}>
+                            <Text style={s.tagText}>{ing} ×</Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+                  </>
                 )}
-              </>
-            )}
-          </View>
+              </View>
+
+              {/* 除外キーワード */}
+              <View style={s.card}>
+                <View style={s.cardHeaderRow}>
+                  <View style={s.cardHeader}>
+                    <Text style={s.cardEmoji}>🚫</Text>
+                    <Text style={s.cardTitle}>苦手な食材・調理法（任意）</Text>
+                  </View>
+                  <Switch value={isExcludeEnabled} onValueChange={setIsExcludeEnabled} trackColor={{ false: '#d1d5db', true: C.primary }} thumbColor={C.white} />
+                </View>
+                <Text style={s.cardDesc}>苦手な食材や使いたくない調理法を除けます</Text>
+                {isExcludeEnabled && (
+                  <>
+                    <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
+                      <TextInput
+                        style={[s.input, { flex: 1 }]}
+                        value={newExclude}
+                        onChangeText={setNewExclude}
+                        onSubmitEditing={addExclude}
+                        placeholder="例: ピーマン、辛いもの、揚げ物"
+                        placeholderTextColor={C.textMuted}
+                        returnKeyType="done"
+                      />
+                      <TouchableOpacity style={s.addBtn} onPress={addExclude}><Text style={s.addBtnText}>追加</Text></TouchableOpacity>
+                    </View>
+                    {allergies.length > 0 && (
+                      <View style={s.tagWrap}>
+                        {allergies.map((a) => (
+                          <TouchableOpacity key={a} style={[s.tag, s.tagExclude]} onPress={() => setAllergies(allergies.filter((x) => x !== a))}>
+                            <Text style={[s.tagText, s.tagExcludeText]}>{a} ×</Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+                  </>
+                )}
+              </View>
+            </View>
+          )}
 
           {/* 設定サマリー */}
           <View style={s.summaryCard}>
@@ -595,6 +613,22 @@ const makeStyles = (C) => StyleSheet.create({
   tagText: { fontSize: 13, color: C.textSub },
   tagExclude: { backgroundColor: '#fff1f0', borderColor: '#fca5a5' },
   tagExcludeText: { color: '#b91c1c' },
+
+  detailsToggle: {
+    backgroundColor: C.white,
+    borderRadius: 16,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 6, elevation: 1,
+    borderWidth: 1, borderColor: C.creamBorder,
+  },
+  detailsToggleLeft: { flex: 1, gap: 2 },
+  detailsToggleTitle: { fontSize: 15, fontWeight: '700', color: C.text },
+  detailsToggleHint: { fontSize: 11, color: C.textMuted },
+  detailsToggleArrow: { fontSize: 14, color: C.textMuted, fontWeight: '600' },
+  detailsContent: { gap: 12 },
 
   // Summary & Generate
   summaryCard: { backgroundColor: C.white, borderRadius: 14, padding: 14, borderWidth: 1.5, borderColor: C.primary + '44', alignItems: 'center' },

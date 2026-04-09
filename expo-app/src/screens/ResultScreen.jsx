@@ -93,6 +93,8 @@ export default function ResultScreen({ navigation }) {
   const C = useTheme();
   const s = useMemo(() => makeStyles(C), [C]);
   const [checked, setChecked] = useState(new Set());
+  const [completedSteps, setCompletedSteps] = useState(new Set());
+  const [showAllTips, setShowAllTips] = useState(false);
   const [genImage, setGenImage] = useState(null);
   const [imageLoading, setImageLoading] = useState(false);
   const [loadingType, setLoadingType] = useState(null); // 'arrange' | 'regenerate' | null
@@ -124,6 +126,11 @@ export default function ResultScreen({ navigation }) {
     } catch { /* show name only */ }
     finally { setIngLoading(false); }
   };
+
+  useEffect(() => {
+    setCompletedSteps(new Set());
+    setShowAllTips(false);
+  }, [recipe?.name]);
 
   useEffect(() => {
     if (!recipe) return;
@@ -478,14 +485,29 @@ export default function ResultScreen({ navigation }) {
             {recipe.instructions?.length > 0 && (
               <View style={s.section}>
                 <Text style={s.sectionTitle}>👨‍🍳 作り方</Text>
-                {recipe.instructions.map((step, i) => (
-                  <View key={i} style={s.stepRow}>
-                    <View style={s.stepNum}>
-                      <Text style={s.stepNumText}>{i + 1}</Text>
-                    </View>
-                    <Text style={s.stepText}>{step}</Text>
-                  </View>
-                ))}
+                <Text style={s.stepHint}>タップして完了したステップにチェックをつけられます</Text>
+                {recipe.instructions.map((step, i) => {
+                  const done = completedSteps.has(i);
+                  return (
+                    <TouchableOpacity
+                      key={i}
+                      style={[s.stepRow, done && s.stepRowDone]}
+                      onPress={() => {
+                        setCompletedSteps(prev => {
+                          const next = new Set(prev);
+                          next.has(i) ? next.delete(i) : next.add(i);
+                          return next;
+                        });
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <View style={[s.stepNum, done && s.stepNumDone]}>
+                        <Text style={s.stepNumText}>{done ? '✓' : i + 1}</Text>
+                      </View>
+                      <Text style={[s.stepText, done && s.stepTextDone]}>{step}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
             )}
 
@@ -524,14 +546,31 @@ export default function ResultScreen({ navigation }) {
             {recipe.tips?.length > 0 && (
               <View style={s.tipsCard}>
                 <Text style={s.sectionTitle}>💡 ワンポイントアドバイス</Text>
-                {recipe.tips.map((tip, i) => (
-                  <View key={i} style={s.tipRow}>
-                    <View style={s.tipBadge}>
-                      <Text style={s.tipBadgeText}>{['①', '②', '③'][i] ?? '+'}</Text>
-                    </View>
-                    <Text style={s.tipText}>{tip}</Text>
-                  </View>
-                ))}
+                <View key={0} style={s.tipRow}>
+                  <View style={s.tipBadge}><Text style={s.tipBadgeText}>①</Text></View>
+                  <Text style={s.tipText}>{recipe.tips[0]}</Text>
+                </View>
+                {recipe.tips.length > 1 && (
+                  <>
+                    {showAllTips && recipe.tips.slice(1).map((tip, i) => (
+                      <View key={i + 1} style={s.tipRow}>
+                        <View style={s.tipBadge}>
+                          <Text style={s.tipBadgeText}>{['②', '③', '④'][i] ?? '+'}</Text>
+                        </View>
+                        <Text style={s.tipText}>{tip}</Text>
+                      </View>
+                    ))}
+                    <TouchableOpacity
+                      onPress={() => setShowAllTips(!showAllTips)}
+                      style={s.tipToggleBtn}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={s.tipToggleText}>
+                        {showAllTips ? 'アドバイスを閉じる ▲' : `さらに ${recipe.tips.length - 1} 件のアドバイスを見る ▼`}
+                      </Text>
+                    </TouchableOpacity>
+                  </>
+                )}
               </View>
             )}
 
@@ -853,6 +892,11 @@ const makeStyles = (C) => StyleSheet.create({
   tipBadge: { width: 24, height: 24, borderRadius: 8, backgroundColor: C.accent, alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 },
   tipBadgeText: { color: '#fff', fontSize: 10, fontWeight: '700' },
   tipText: { flex: 1, fontSize: 14, color: C.textSub, lineHeight: 22 },
+  tipToggleBtn: {
+    marginTop: 8, paddingVertical: 8, alignItems: 'center',
+    borderTopWidth: 1, borderTopColor: C.creamBorder,
+  },
+  tipToggleText: { fontSize: 13, color: C.primary, fontWeight: '600' },
 
   actionErrorCard: {
     backgroundColor: '#fff1f0', borderRadius: 14,
@@ -867,10 +911,14 @@ const makeStyles = (C) => StyleSheet.create({
   },
   actionRetryText: { color: '#fff', fontSize: 13, fontWeight: '700' },
 
+  stepHint: { fontSize: 12, color: C.textMuted, marginBottom: 10, fontStyle: 'italic' },
   stepRow: { flexDirection: 'row', gap: 14, marginBottom: 22, alignItems: 'flex-start' },
+  stepRowDone: { opacity: 0.5 },
   stepNum: { width: 34, height: 34, borderRadius: 17, backgroundColor: C.primary, alignItems: 'center', justifyContent: 'center', marginTop: 2, flexShrink: 0 },
+  stepNumDone: { backgroundColor: '#9ca3af', borderColor: '#9ca3af' },
   stepNumText: { color: '#fff', fontSize: 15, fontWeight: '800' },
   stepText: { flex: 1, fontSize: 16, color: C.text, lineHeight: 26 },
+  stepTextDone: { textDecorationLine: 'line-through', color: C.textMuted },
 
   bottomBar: {
     position: 'absolute', bottom: 56, left: 0, right: 0,

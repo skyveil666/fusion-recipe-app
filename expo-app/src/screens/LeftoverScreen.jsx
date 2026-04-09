@@ -35,6 +35,7 @@ export default function LeftoverScreen({ navigation }) {
   const [isExcludeEnabled, setIsExcludeEnabled] = useState(false);
   const [excludeText, setExcludeText]         = useState('');
   const [loading, setLoading]                 = useState(false);
+  const [showDetails, setShowDetails]         = useState(false);
 
   const canGenerate = leftoverText.trim().length > 0;
 
@@ -183,78 +184,95 @@ export default function LeftoverScreen({ navigation }) {
             </View>
           </View>
 
-          {/* オプション */}
-          <View style={s.card}>
-            <Text style={s.cardLabel}>⚙️ こだわり設定</Text>
-
-            <View style={s.switchRow}>
-              <View style={s.switchLeft}>
-                <Text style={s.switchLabel}>調味料少なめ</Text>
-                <Text style={s.switchDesc}>家にある基本調味料を2〜4種類に絞る</Text>
-              </View>
-              <Switch
-                value={lessSeasoning}
-                onValueChange={setLessSeasoning}
-                trackColor={{ false: '#ddd', true: ACCENT }}
-                thumbColor="#fff"
-              />
+          {/* こだわり設定（折りたたみ） */}
+          <TouchableOpacity
+            style={s.detailsToggle}
+            onPress={() => setShowDetails(!showDetails)}
+            activeOpacity={0.8}
+          >
+            <View style={s.detailsToggleLeft}>
+              <Text style={s.detailsToggleTitle}>⚙️ こだわり設定</Text>
+              <Text style={s.detailsToggleHint}>任意 — 設定しなくても生成できます</Text>
             </View>
+            <Text style={s.detailsToggleArrow}>{showDetails ? '▲' : '▼'}</Text>
+          </TouchableOpacity>
 
-            <View style={s.divider} />
+          {showDetails && (
+            <View style={s.detailsContent}>
+              {/* オプション */}
+              <View style={s.card}>
+                <Text style={s.cardLabel}>⚙️ 調理オプション</Text>
 
-            <View style={s.switchRow}>
-              <View style={s.switchLeft}>
-                <Text style={s.switchLabel}>家にあるもので作る</Text>
-                <Text style={s.switchDesc}>買い足し最小限・特殊食材を使わない</Text>
+                <View style={s.switchRow}>
+                  <View style={s.switchLeft}>
+                    <Text style={s.switchLabel}>調味料少なめ</Text>
+                    <Text style={s.switchDesc}>家にある基本調味料を2〜4種類に絞る</Text>
+                  </View>
+                  <Switch
+                    value={lessSeasoning}
+                    onValueChange={setLessSeasoning}
+                    trackColor={{ false: '#ddd', true: ACCENT }}
+                    thumbColor="#fff"
+                  />
+                </View>
+
+                <View style={s.divider} />
+
+                <View style={s.switchRow}>
+                  <View style={s.switchLeft}>
+                    <Text style={s.switchLabel}>家にあるもので作る</Text>
+                    <Text style={s.switchDesc}>買い足し最小限・特殊食材を使わない</Text>
+                  </View>
+                  <Switch
+                    value={homeIngredients}
+                    onValueChange={setHomeIngredients}
+                    trackColor={{ false: '#ddd', true: ACCENT }}
+                    thumbColor="#fff"
+                  />
+                </View>
+
+                <View style={s.divider} />
+
+                <View style={s.switchRow}>
+                  <View style={s.switchLeft}>
+                    <Text style={s.switchLabel}>工程少なめ</Text>
+                    <Text style={s.switchDesc}>手順・洗い物を増やしすぎない</Text>
+                  </View>
+                  <Switch
+                    value={lessSteps}
+                    onValueChange={setLessSteps}
+                    trackColor={{ false: '#ddd', true: ACCENT }}
+                    thumbColor="#fff"
+                  />
+                </View>
               </View>
-              <Switch
-                value={homeIngredients}
-                onValueChange={setHomeIngredients}
-                trackColor={{ false: '#ddd', true: ACCENT }}
-                thumbColor="#fff"
-              />
-            </View>
 
-            <View style={s.divider} />
-
-            <View style={s.switchRow}>
-              <View style={s.switchLeft}>
-                <Text style={s.switchLabel}>工程少なめ</Text>
-                <Text style={s.switchDesc}>手順・洗い物を増やしすぎない</Text>
+              {/* 除外キーワード */}
+              <View style={s.card}>
+                <View style={s.switchRow}>
+                  <View style={s.switchLeft}>
+                    <Text style={s.cardLabel}>🚫 除外キーワード（任意）</Text>
+                    <Text style={s.switchDesc}>使いたくない食材や調理法を入力</Text>
+                  </View>
+                  <Switch
+                    value={isExcludeEnabled}
+                    onValueChange={setIsExcludeEnabled}
+                    trackColor={{ false: '#ddd', true: ACCENT }}
+                    thumbColor="#fff"
+                  />
+                </View>
+                {isExcludeEnabled && (
+                  <TextInput
+                    style={[s.input, { marginTop: 12 }]}
+                    placeholder="例: 揚げ物、辛いもの、にんにく（カンマ区切り）"
+                    placeholderTextColor="#aaa"
+                    value={excludeText}
+                    onChangeText={setExcludeText}
+                  />
+                )}
               </View>
-              <Switch
-                value={lessSteps}
-                onValueChange={setLessSteps}
-                trackColor={{ false: '#ddd', true: ACCENT }}
-                thumbColor="#fff"
-              />
             </View>
-          </View>
-
-          {/* 除外キーワード */}
-          <View style={s.card}>
-            <View style={s.switchRow}>
-              <View style={s.switchLeft}>
-                <Text style={s.cardLabel}>🚫 除外キーワード（任意）</Text>
-                <Text style={s.switchDesc}>使いたくない食材や調理法を入力</Text>
-              </View>
-              <Switch
-                value={isExcludeEnabled}
-                onValueChange={setIsExcludeEnabled}
-                trackColor={{ false: '#ddd', true: ACCENT }}
-                thumbColor="#fff"
-              />
-            </View>
-            {isExcludeEnabled && (
-              <TextInput
-                style={[s.input, { marginTop: 12 }]}
-                placeholder="例: 揚げ物、辛いもの、にんにく（カンマ区切り）"
-                placeholderTextColor="#aaa"
-                value={excludeText}
-                onChangeText={setExcludeText}
-              />
-            )}
-          </View>
+          )}
 
           {/* サマリー */}
           {canGenerate && (
@@ -348,6 +366,23 @@ function makeStyles(C) {
     switchLabel: { fontSize: 15, fontWeight: '700', color: '#333' },
     switchDesc: { fontSize: 12, color: '#888', marginTop: 2 },
     divider: { height: 1, backgroundColor: '#e6faf8', marginVertical: 10 },
+
+    detailsToggle: {
+      backgroundColor: '#fff',
+      borderRadius: 18,
+      padding: 18,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      shadowColor: ACCENT, shadowOpacity: 0.07, shadowRadius: 8, elevation: 2,
+      borderWidth: 1.5, borderColor: BORDER_COLOR,
+      marginBottom: 14,
+    },
+    detailsToggleLeft: { flex: 1, gap: 2 },
+    detailsToggleTitle: { fontSize: 15, fontWeight: '800', color: ACCENT_DARK },
+    detailsToggleHint: { fontSize: 11, color: '#888' },
+    detailsToggleArrow: { fontSize: 14, color: '#888', fontWeight: '600' },
+    detailsContent: { gap: 0 },
 
     confirmSummary: {
       backgroundColor: '#e6faf8',
