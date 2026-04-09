@@ -828,6 +828,34 @@ ${styleClause}
 【紹介文（2文のみ）】1文目: この料理の味・食感のイメージ。2文目: 「${cookingTime}」「残り物活用」を感じさせる一文。
 【条件】- 人数: ${servings}${allergyClause}`;
 
+    } else if (type === 'microwave') {
+      const { ingredientText, cookingTime, servings, lessSeasoning, homeIngredients, lessWashing, cleanHands, excludeList } = params;
+      const ctLabel = cookingTime === '5分' ? '5分以内' : '10分以内';
+      const optionClauses = [];
+      if (lessSeasoning) optionClauses.push('- 調味料は醤油・みりん・塩・砂糖・ごま油・バターなど家庭にある基本のものを2〜4種類のみに絞ること');
+      if (homeIngredients) optionClauses.push('- 買い足す食材は最小限にして、家庭によくある食材を優先すること');
+      if (lessWashing) optionClauses.push('- 使う器具・容器はできるだけ1つの耐熱容器や皿で完結させること。洗い物を増やさない');
+      if (cleanHands) optionClauses.push('- こねる・まぶす・包む・衣をつけるなど手作業が多い工程は禁止。箸やスプーンで混ぜる程度の手軽さにすること');
+      const optClause = optionClauses.length > 0 ? `\n【追加条件】\n${optionClauses.join('\n')}` : '';
+      const excludeClause = excludeList && excludeList.length > 0 ? `\n- 以下は使わないこと: ${excludeList.join('、')}` : '';
+      userPrompt = `あなたは電子レンジ料理の専門家です。「${ingredientText}」を使って、電子レンジだけで作れる簡単な一品料理のレシピを1つ作ってください。
+
+【絶対ルール】
+- 電子レンジのみを使うこと。コンロ・オーブン・トースター・直火は一切使わない
+- 調理時間は${ctLabel}（電子レンジ加熱時間＋下ごしらえの合計）
+- 揚げ物・長時間加熱・手でこねる工程は禁止
+- 副菜・小鉢・おつまみ・簡単おかずを優先すること
+
+【コンセプト】
+- 「今すぐ一品ほしい」を解決する実用的なレシピにする
+- 若い人から高齢の方まで失敗しにくい内容にする
+- 家庭にある食材・調味料だけで作れることを意識する
+- 後片付けのラクさまで含めて価値を出す${optClause}${excludeClause}
+
+【タイトル】親しみやすく、レンジ調理感が伝わる料理名にする（難しい漢字・専門用語は避ける）
+【紹介文（2文のみ）】1文目: この料理の味・食感のイメージ。2文目: 「${cookingTime}」「電子レンジだけ」を感じさせる一文。
+【条件】- 人数: ${servings}${allergyClause}`;
+
     } else {
       const { ingredients, category, servings } = params;
       userPrompt = `あなたはプロの料理家です。以下の条件でレシピを1つ作成してください。

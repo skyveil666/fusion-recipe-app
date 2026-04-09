@@ -105,6 +105,27 @@ export default function HomeScreen({ navigation }) {
             </View>
           </TouchableOpacity>
 
+          {/* Microwave Card */}
+          <TouchableOpacity
+            style={s.microwaveCard}
+            onPress={() => navigation.navigate('Microwave')}
+            activeOpacity={0.85}
+          >
+            <View style={s.featuredLeft}>
+              <Text style={s.featuredEmoji}>⚡</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={s.microwaveBadge}>火を使わない</Text>
+                <Text style={s.microwaveTitle}>電子レンジで一品</Text>
+                <Text style={s.microwaveSub}>
+                  10分以内・洗い物少なめ{'\n'}今すぐ一品ほしいときに
+                </Text>
+              </View>
+            </View>
+            <View style={s.microwaveArrow}>
+              <Text style={s.featuredArrowText}>→</Text>
+            </View>
+          </TouchableOpacity>
+
           {/* Leftover Arrange Card */}
           <TouchableOpacity
             style={s.leftoverCard}
@@ -310,6 +331,55 @@ const s = StyleSheet.create({
     height: 34,
     borderRadius: 17,
     backgroundColor: '#0f766e',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
+  },
+
+  // Microwave Card
+  microwaveCard: {
+    backgroundColor: '#fffbeb',
+    borderRadius: 22,
+    padding: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    shadowColor: '#d97706',
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 3,
+    marginBottom: 14,
+    borderWidth: 1.5,
+    borderColor: '#fcd34d',
+  },
+  microwaveBadge: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#fff',
+    backgroundColor: '#d97706',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginBottom: 5,
+    overflow: 'hidden',
+  },
+  microwaveTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#78350f',
+    marginBottom: 4,
+  },
+  microwaveSub: {
+    fontSize: 13,
+    color: '#d97706',
+    lineHeight: 19,
+  },
+  microwaveArrow: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#d97706',
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 8,

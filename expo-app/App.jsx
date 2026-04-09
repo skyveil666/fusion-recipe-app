@@ -25,6 +25,7 @@ import PhotoRecipeScreen  from './src/screens/PhotoRecipeScreen';
 import ShoppingListScreen from './src/screens/ShoppingListScreen';
 import DishFusionScreen   from './src/screens/DishFusionScreen';
 import LeftoverScreen     from './src/screens/LeftoverScreen';
+import MicrowaveScreen   from './src/screens/MicrowaveScreen';
 import PaywallScreen      from './src/screens/PaywallScreen';
 
 SplashScreen.preventAutoHideAsync();
@@ -78,6 +79,7 @@ export default function App() {
                 <Stack.Screen name="DishFusion"   component={DishFusionScreen} />
                 <Stack.Screen name="Paywall"      component={PaywallScreen} />
                 <Stack.Screen name="Leftover"     component={LeftoverScreen} />
+                <Stack.Screen name="Microwave"    component={MicrowaveScreen} />
               </Stack.Navigator>
             </NavigationContainer>
           </AppProvider>
