@@ -24,7 +24,7 @@
         "backgroundColor": "#3a5a18"
       },
       "package": "com.fusionrecipe.app",
-      "versionCode": 12,
+      "versionCode": 13,
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
