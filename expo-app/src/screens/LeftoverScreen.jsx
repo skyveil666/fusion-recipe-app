@@ -117,6 +117,12 @@ export default function LeftoverScreen({ navigation }) {
           </View>
           <Text style={s.headerTitle}>残り物アレンジ</Text>
           <Text style={s.headerDesc}>もったいないを、おいしいに変える</Text>
+          {/* 安心バッジ */}
+          <View style={s.trustBadgeRow}>
+            <View style={s.trustBadge}><Text style={s.trustBadgeText}>♻️ もったいなく使い切る</Text></View>
+            <View style={s.trustBadge}><Text style={s.trustBadgeText}>⏱ 短時間で完成</Text></View>
+            <View style={s.trustBadge}><Text style={s.trustBadgeText}>🛒 買い足し不要</Text></View>
+          </View>
         </View>
 
         <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
@@ -292,6 +298,9 @@ export default function LeftoverScreen({ navigation }) {
           >
             <Text style={s.genBtnText}>♻️ アレンジレシピを作る</Text>
           </TouchableOpacity>
+          {!canGenerate && (
+            <Text style={s.genHint}>残り物の内容を入力すると生成できます</Text>
+          )}
 
           <View style={{ height: 20 }} />
         </ScrollView>
@@ -316,6 +325,16 @@ function makeStyles(C) {
     backText: { color: 'rgba(255,255,255,0.75)', fontSize: 14 },
     headerTitle: { color: '#fff', fontSize: 24, fontWeight: '900', marginBottom: 6 },
     headerDesc: { color: 'rgba(255,255,255,0.7)', fontSize: 13 },
+    trustBadgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 },
+    trustBadge: {
+      backgroundColor: 'rgba(255,255,255,0.18)',
+      borderRadius: 20,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.35)',
+    },
+    trustBadgeText: { fontSize: 12, color: '#fff', fontWeight: '600' },
 
     scroll: { padding: 16, paddingTop: 18 },
 
@@ -408,5 +427,12 @@ function makeStyles(C) {
     },
     genBtnDisabled: { backgroundColor: '#99f6e4' },
     genBtnText: { color: '#fff', fontSize: 17, fontWeight: '900' },
+    genHint: {
+      textAlign: 'center',
+      fontSize: 13,
+      color: 'rgba(15,118,110,0.6)',
+      marginTop: 8,
+      marginBottom: 4,
+    },
   });
 }

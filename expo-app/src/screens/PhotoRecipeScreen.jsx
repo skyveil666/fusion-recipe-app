@@ -180,6 +180,12 @@ export default function PhotoRecipeScreen({ navigation }) {
           </View>
           <Text style={s.headerTitle}>📷 写真でかんたん一品</Text>
           <Text style={s.headerSub}>15分以内で作れるすぐ使える一品を提案</Text>
+          {/* 安心バッジ */}
+          <View style={s.trustBadgeRow}>
+            <View style={s.trustBadge}><Text style={s.trustBadgeText}>📷 写真を撮るだけ</Text></View>
+            <View style={s.trustBadge}><Text style={s.trustBadgeText}>⚡ 15分以内</Text></View>
+            <View style={s.trustBadge}><Text style={s.trustBadgeText}>🥗 一品料理</Text></View>
+          </View>
         </View>
 
         <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
@@ -354,6 +360,9 @@ export default function PhotoRecipeScreen({ navigation }) {
               >
                 <Text style={s.generateText}>✨ 一品レシピを作る</Text>
               </TouchableOpacity>
+              {selectedIngredients.length === 0 && (
+                <Text style={s.genHint}>食材を選択すると生成できます</Text>
+              )}
 
               {genError && (
                 <View style={s.errorCard}>
@@ -457,10 +466,29 @@ const makeStyles = (C) => StyleSheet.create({
   confirmLabel: { fontSize: 11, fontWeight: '700', color: '#b45309', opacity: 0.7 },
   confirmText: { fontSize: 14, fontWeight: '600', color: C.text, lineHeight: 20 },
 
+  // Trust badges
+  trustBadgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },
+  trustBadge: {
+    backgroundColor: 'rgba(180,83,9,0.15)',
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderWidth: 1,
+    borderColor: 'rgba(180,83,9,0.3)',
+  },
+  trustBadgeText: { fontSize: 12, color: '#b45309', fontWeight: '600' },
+
   // Generate
   generateBtn: { backgroundColor: '#b45309', borderRadius: 16, paddingVertical: 18, alignItems: 'center', marginTop: 4 },
   generateBtnDisabled: { opacity: 0.4 },
   generateText: { color: '#fff', fontSize: 17, fontWeight: '700' },
+  genHint: {
+    textAlign: 'center',
+    fontSize: 13,
+    color: 'rgba(180,83,9,0.6)',
+    marginTop: 8,
+    marginBottom: 4,
+  },
 
   // Error
   errorCard: { backgroundColor: '#fff1f0', borderRadius: 14, borderWidth: 1, borderColor: '#fca5a5', padding: 16, alignItems: 'center', gap: 8, marginTop: 4 },

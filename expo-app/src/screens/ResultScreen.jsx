@@ -484,8 +484,24 @@ export default function ResultScreen({ navigation }) {
             {/* Instructions */}
             {recipe.instructions?.length > 0 && (
               <View style={s.section}>
-                <Text style={s.sectionTitle}>👨‍🍳 作り方</Text>
-                <Text style={s.stepHint}>タップして完了したステップにチェックをつけられます</Text>
+                <View style={s.sectionHeader}>
+                  <Text style={[s.sectionTitle, { marginBottom: 0 }]}>👨‍🍳 作り方</Text>
+                  {recipe.instructions?.length > 0 && (
+                    <Text style={s.stepProgress}>
+                      {completedSteps.size} / {recipe.instructions.length} 完了
+                    </Text>
+                  )}
+                </View>
+                <Text style={s.stepHint}>タップして完了したステップをチェックできます ✓</Text>
+                {completedSteps.size > 0 && (
+                  <TouchableOpacity
+                    onPress={() => setCompletedSteps(new Set())}
+                    style={s.resetStepsBtn}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={s.resetStepsBtnText}>↺ チェックをリセット</Text>
+                  </TouchableOpacity>
+                )}
                 {recipe.instructions.map((step, i) => {
                   const done = completedSteps.has(i);
                   return (
@@ -545,7 +561,7 @@ export default function ResultScreen({ navigation }) {
             {/* Tips – ワンポイントアドバイス */}
             {recipe.tips?.length > 0 && (
               <View style={s.tipsCard}>
-                <Text style={s.sectionTitle}>💡 ワンポイントアドバイス</Text>
+                <Text style={s.sectionTitle}>💡 料理のコツ</Text>
                 <View key={0} style={s.tipRow}>
                   <View style={s.tipBadge}><Text style={s.tipBadgeText}>①</Text></View>
                   <Text style={s.tipText}>{recipe.tips[0]}</Text>
@@ -911,6 +927,17 @@ const makeStyles = (C) => StyleSheet.create({
   },
   actionRetryText: { color: '#fff', fontSize: 13, fontWeight: '700' },
 
+  stepProgress: { fontSize: 12, color: C.textMuted, fontWeight: '600' },
+  resetStepsBtn: {
+    alignSelf: 'flex-end',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: C.creamBorder,
+    marginBottom: 8,
+  },
+  resetStepsBtnText: { fontSize: 12, color: C.textMuted },
   stepHint: { fontSize: 12, color: C.textMuted, marginBottom: 10, fontStyle: 'italic' },
   stepRow: { flexDirection: 'row', gap: 14, marginBottom: 22, alignItems: 'flex-start' },
   stepRowDone: { opacity: 0.5 },

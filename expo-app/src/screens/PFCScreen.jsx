@@ -485,11 +485,19 @@ export default function PFCScreen({ navigation }) {
             </View>
           )}
 
-          {/* 設定サマリー */}
-          <View style={s.summaryCard}>
-            <Text style={s.summaryLabel}>現在の設定</Text>
-            <Text style={s.summaryText}>{summaryParts.join('　/　')}</Text>
-          </View>
+          {/* 今の設定サマリー */}
+          {pfcPreset && (
+            <View style={s.confirmSummary}>
+              <Text style={s.confirmLabel}>📋 今の設定</Text>
+              <Text style={s.confirmText}>
+                {[
+                  isCustomOpen && isCustomized ? `カスタム P${pfc.p}/F${pfc.f}/C${pfc.c}` : selectedPreset?.label,
+                  cookingTime || '時間指定なし',
+                  effectiveServings,
+                ].filter(Boolean).join('　/　')}
+              </Text>
+            </View>
+          )}
 
           {/* 生成ボタン */}
           <TouchableOpacity style={s.generateBtn} onPress={generate} disabled={loading} activeOpacity={0.85}>
@@ -634,6 +642,18 @@ const makeStyles = (C) => StyleSheet.create({
   summaryCard: { backgroundColor: C.white, borderRadius: 14, padding: 14, borderWidth: 1.5, borderColor: C.primary + '44', alignItems: 'center' },
   summaryLabel: { fontSize: 11, color: C.textMuted, marginBottom: 4, fontWeight: '600', letterSpacing: 0.5 },
   summaryText: { fontSize: 15, fontWeight: '700', color: C.primary },
+  confirmSummary: {
+    backgroundColor: '#f0fde4',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#86efac',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginBottom: 10,
+    gap: 3,
+  },
+  confirmLabel: { fontSize: 11, fontWeight: '700', color: '#3a5a18', opacity: 0.7 },
+  confirmText: { fontSize: 14, fontWeight: '600', color: '#1a2e0a', lineHeight: 20 },
   generateBtn: { backgroundColor: C.primary, borderRadius: 16, paddingVertical: 18, alignItems: 'center', marginTop: 4 },
   generateText: { color: '#fff', fontSize: 17, fontWeight: '700' },
   errorCard: { backgroundColor: '#fff1f0', borderRadius: 14, borderWidth: 1, borderColor: '#fca5a5', padding: 16, alignItems: 'center', gap: 8, marginTop: 4 },
