@@ -90,7 +90,7 @@ export default function DishFusionScreen({ navigation }) {
         servings,
         type: 'dish_fusion',
       });
-      if (data.shareId) addToHistory({ id: data.shareId, recipe: data.recipe, type: 'dish_fusion' });
+      addToHistory(data.recipe, 'dish');
       if (!navigation.isFocused()) return;
       navigation.navigate('Result');
     } catch (e) {

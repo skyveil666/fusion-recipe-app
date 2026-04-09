@@ -165,7 +165,7 @@ export default function SeasonalScreen({ navigation }) {
         servings,
         cookingTime: isCookingTimeEnabled ? cookingTime : '',
       });
-      addToHistory(data.recipe);
+      addToHistory(data.recipe, 'seasonal');
       if (!navigation.isFocused()) return;
       navigation.navigate('Result');
     } catch (e) {

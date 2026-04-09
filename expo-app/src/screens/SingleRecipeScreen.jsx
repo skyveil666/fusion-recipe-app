@@ -97,7 +97,7 @@ export default function SingleRecipeScreen({ navigation }) {
       setRecipeResult(data.recipe);
       setRecipeSource('single');
       setFusionParams({ country1: country, category, servings, cookingTime: isCookingTimeEnabled ? cookingTime : '', type: 'single' });
-      addToHistory(data.recipe);
+      addToHistory(data.recipe, 'single');
       if (!navigation.isFocused()) return;
       navigation.navigate('Result');
     } catch (e) {

@@ -249,7 +249,7 @@ export default function FusionSelectScreen({ navigation }) {
       useRecipe();
       setRecipeResult(data.recipe);
       setRecipeSource('fusion');
-      addToHistory(data.recipe);
+      addToHistory(data.recipe, 'fusion');
       if (!navigation.isFocused()) return;
       navigation.navigate('Result');
     } catch (e) {

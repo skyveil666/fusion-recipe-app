@@ -5,8 +5,6 @@ import { COLORS, DARK_COLORS, API_BASE } from './constants';
 
 const AppContext = createContext(null);
 
-const MAX_HISTORY = 20;
-
 const getCurrentMonth = () => {
   const d = new Date();
   return `${d.getFullYear()}-${d.getMonth() + 1}`;
@@ -25,8 +23,7 @@ const INITIAL_FUSION = {
 const INITIAL_SCAN = { category: '主菜', servings: '2人前' };
 
 export function AppProvider({ children }) {
-  const [favorites, setFavorites]                   = useState([]);
-  const [history, setHistory]                       = useState([]);
+  const [savedRecipes, setSavedRecipesState]        = useState([]);
   const [allergies, setAllergies]                   = useState([]);
   const [dislikes, setDislikesState]                = useState([]);
   const [avoidMethods, setAvoidMethodsState]        = useState([]);
@@ -169,6 +166,7 @@ export function AppProvider({ children }) {
   // Load persisted data once on mount
   useEffect(() => {
     Promise.all([
+      AsyncStorage.getItem('fr_saved_recipes'),
       AsyncStorage.getItem('fr_favorites'),
       AsyncStorage.getItem('fr_history'),
       AsyncStorage.getItem('fr_allergies'),
@@ -182,9 +180,40 @@ export function AppProvider({ children }) {
       AsyncStorage.getItem('fr_bonus_recipes'),
       AsyncStorage.getItem('fr_is_premium'),
       AsyncStorage.getItem('fr_last_reset'),
-    ]).then(([favs, hist, alls, countries, onboarding, dark, shopping, dis, avoid, mUsed, bonus, premium, lastReset]) => {
-      if (favs)       setFavorites(JSON.parse(favs));
-      if (hist)       setHistory(JSON.parse(hist));
+    ]).then(([savedRaw, favs, hist, alls, countries, onboarding, dark, shopping, dis, avoid, mUsed, bonus, premium, lastReset]) => {
+      // savedRecipes マイグレーション
+      if (savedRaw) {
+        setSavedRecipesState(JSON.parse(savedRaw));
+      } else {
+        // fr_history + fr_favorites から移行
+        const histArr = hist ? JSON.parse(hist) : [];
+        const favArr  = favs ? JSON.parse(favs) : [];
+        const favNames = new Set(favArr.map(f => f.name));
+        const histNames = new Set(histArr.map(h => h.name));
+        const migrated = histArr.map(h => ({
+          id: Math.random().toString(36).slice(2, 10),
+          createdAt: h.viewedAt || new Date().toISOString(),
+          source: 'unknown',
+          favorite: favNames.has(h.name),
+          memo: '',
+          savedImage: h.savedImage || null,
+          ...h,
+        }));
+        // favorites の中で history にないものも追加
+        favArr.filter(f => !histNames.has(f.name)).forEach(f => {
+          migrated.push({
+            id: Math.random().toString(36).slice(2, 10),
+            createdAt: f.savedAt || new Date().toISOString(),
+            source: 'unknown',
+            favorite: true,
+            memo: '',
+            savedImage: f.savedImage || null,
+            ...f,
+          });
+        });
+        setSavedRecipesState(migrated);
+      }
+
       if (alls)       setAllergies(JSON.parse(alls));
       if (countries)  setFavoriteCountries(JSON.parse(countries));
       if (onboarding) setHasSeenOnboardingState(true);
@@ -211,13 +240,10 @@ export function AppProvider({ children }) {
     });
   }, []);
 
-  // Persist only after initial load
+  // Persist savedRecipes after initial load
   useEffect(() => {
-    if (loaded.current) AsyncStorage.setItem('fr_favorites', JSON.stringify(favorites));
-  }, [favorites]);
-  useEffect(() => {
-    if (loaded.current) AsyncStorage.setItem('fr_history', JSON.stringify(history));
-  }, [history]);
+    if (loaded.current) AsyncStorage.setItem('fr_saved_recipes', JSON.stringify(savedRecipes));
+  }, [savedRecipes]);
   useEffect(() => {
     if (loaded.current) AsyncStorage.setItem('fr_allergies', JSON.stringify(allergies));
   }, [allergies]);
@@ -275,39 +301,67 @@ export function AppProvider({ children }) {
     });
   };
 
-  const toggleFavorite = (recipe, imageBase64 = null) => {
-    setFavorites((prev) => {
-      const exists = prev.some((f) => f.name === recipe.name);
-      if (exists) return prev.filter((f) => f.name !== recipe.name);
-      return [...prev, { ...recipe, savedImage: imageBase64, savedAt: new Date().toISOString() }];
-    });
-  };
-
-  const isFavorite = (name) => favorites.some((f) => f.name === name);
-
-  const addToHistory = (recipe) => {
-    setHistory((prev) => {
-      const filtered = prev.filter((h) => h.name !== recipe.name);
-      const updated  = [{ ...recipe, viewedAt: new Date().toISOString() }, ...filtered];
-      return updated.slice(0, MAX_HISTORY);
+  const addToHistory = (recipe, source = 'unknown') => {
+    setSavedRecipesState(prev => {
+      const filtered = prev.filter(r => r.name !== recipe.name);
+      const newRecord = {
+        id: Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4),
+        createdAt: new Date().toISOString(),
+        source,
+        favorite: false,
+        memo: '',
+        savedImage: null,
+        ...recipe,
+      };
+      return [newRecord, ...filtered].slice(0, 50);
     });
   };
 
   const updateHistoryImage = (recipeName, imageBase64) => {
     if (!recipeName || !imageBase64) return;
-    setHistory((prev) =>
-      prev.map((h) =>
-        h.name === recipeName && !h.savedImage
-          ? { ...h, savedImage: imageBase64 }
-          : h
-      )
+    setSavedRecipesState(prev =>
+      prev.map(r => r.name === recipeName && !r.savedImage ? { ...r, savedImage: imageBase64 } : r)
     );
   };
 
+  const toggleFavorite = (name) => {
+    setSavedRecipesState(prev =>
+      prev.map(r => r.name === name ? { ...r, favorite: !r.favorite } : r)
+    );
+  };
+
+  const isFavorite = (name) => savedRecipes.some(r => r.name === name && r.favorite);
+
+  const updateMemo = (name, memo) => {
+    setSavedRecipesState(prev =>
+      prev.map(r => r.name === name ? { ...r, memo } : r)
+    );
+  };
+
+  const clearHistory = () => setSavedRecipesState([]);
+
+  const removeRecipe = (name) => {
+    setSavedRecipesState(prev => prev.filter(r => r.name !== name));
+  };
+
+  // 後方互換
+  const history = savedRecipes;
+  const favorites = savedRecipes.filter(r => r.favorite);
+  const setHistory = (val) => {
+    const v = typeof val === 'function' ? val(savedRecipes) : val;
+    setSavedRecipesState(v);
+  };
+  const setFavorites = () => {}; // no-op
+
   return (
     <AppContext.Provider value={{
+      savedRecipes,
+      addToHistory, updateHistoryImage,
+      toggleFavorite, isFavorite,
+      updateMemo, clearHistory, removeRecipe,
+      // 後方互換
       favorites, setFavorites,
-      history, setHistory, addToHistory, updateHistoryImage,
+      history, setHistory,
       allergies, setAllergies,
       dislikes, setDislikes,
       avoidMethods, setAvoidMethods,
@@ -319,7 +373,6 @@ export function AppProvider({ children }) {
       detectedIngredients, setDetectedIngredients,
       fusionParams, setFusionParams,
       scanParams, setScanParams,
-      toggleFavorite, isFavorite,
       favoriteCountries, toggleFavoriteCountry,
       hasSeenOnboarding, setHasSeenOnboarding,
       darkMode, setDarkMode,

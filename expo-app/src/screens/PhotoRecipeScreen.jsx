@@ -141,7 +141,7 @@ export default function PhotoRecipeScreen({ navigation }) {
       setRecipeResult(data.recipe);
       setRecipeSource('photo');
       setFusionParams({ type: 'photo', servings });
-      addToHistory(data.recipe);
+      addToHistory(data.recipe, 'photo');
       if (!navigation.isFocused()) return;
       navigation.navigate('Result');
     } catch (e) {

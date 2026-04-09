@@ -87,7 +87,7 @@ export default function MicrowaveScreen({ navigation }) {
       setRecipeResult(data.recipe);
       setRecipeSource('microwave');
       setFusionParams({ ingredientText: ingredientText.trim(), cookingTime, servings, type: 'microwave' });
-      addToHistory(data.recipe);
+      addToHistory(data.recipe, 'microwave');
       if (!navigation.isFocused()) return;
       navigation.navigate('Result');
     } catch (e) {

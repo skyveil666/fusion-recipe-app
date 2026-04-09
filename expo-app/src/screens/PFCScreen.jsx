@@ -173,7 +173,7 @@ export default function PFCScreen({ navigation }) {
       setRecipeResult(data.recipe);
       setRecipeSource('pfc');
       setFusionParams({ pfcPreset, pfc: isCustomOpen ? pfc : null, servings: effectiveServings, cookingTime, type: 'pfc' });
-      addToHistory(data.recipe);
+      addToHistory(data.recipe, 'pfc');
       if (!navigation.isFocused()) return;
       navigation.navigate('Result');
     } catch (e) {

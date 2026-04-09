@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   View, Text, TouchableOpacity, Image, ScrollView,
-  StyleSheet, Alert, ActivityIndicator, Share, Modal,
+  StyleSheet, Alert, ActivityIndicator, Share, Modal, TextInput,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp, useTheme } from '../AppContext';
@@ -88,6 +88,7 @@ export default function ResultScreen({ navigation }) {
     addToHistory,
     addToShoppingList, isInShoppingList, removeFromShoppingListByName,
     updateHistoryImage,
+    updateMemo, savedRecipes,
   } = useApp();
   const C = useTheme();
   const s = useMemo(() => makeStyles(C), [C]);
@@ -97,6 +98,10 @@ export default function ResultScreen({ navigation }) {
   const [loadingType, setLoadingType] = useState(null); // 'arrange' | 'regenerate' | null
   const [shareLoading, setShareLoading] = useState(false);
   const [actionError, setActionError] = useState(null); // { type, msg, action }
+
+  const currentRecord = savedRecipes?.find(r => r.name === recipe?.name);
+  const [memoText, setMemoText] = useState(currentRecord?.memo || '');
+  const [memoSaving, setMemoSaving] = useState(false);
 
   // Ingredient popup
   const [ingModal, setIngModal] = useState(null); // { name, amount }
@@ -143,6 +148,11 @@ export default function ResultScreen({ navigation }) {
       })
       .catch(() => {})
       .finally(() => setImageLoading(false));
+  }, [recipe?.name]);
+
+  useEffect(() => {
+    const rec = savedRecipes?.find(r => r.name === recipe?.name);
+    setMemoText(rec?.memo || '');
   }, [recipe?.name]);
 
   if (!recipe) {
@@ -210,7 +220,7 @@ export default function ResultScreen({ navigation }) {
   };
 
   const handleFavorite = () => {
-    toggleFavorite(recipe, genImage);
+    toggleFavorite(recipe.name);
     Alert.alert(fav ? 'お気に入りから削除しました' : 'お気に入りに追加しました！');
   };
 
@@ -242,7 +252,7 @@ export default function ResultScreen({ navigation }) {
         return d;
       });
       setRecipeResult(data.recipe);
-      addToHistory(data.recipe);
+      addToHistory(data.recipe, recipeSource);
       setChecked(new Set());
     } catch (e) {
       handleActionError(e, handleArrange, 'アレンジ');
@@ -273,7 +283,7 @@ export default function ResultScreen({ navigation }) {
         return d;
       });
       setRecipeResult(data.recipe);
-      addToHistory(data.recipe);
+      addToHistory(data.recipe, recipeSource);
       setChecked(new Set());
     } catch (e) {
       handleActionError(e, handleRegenerate, '再生成');
@@ -524,6 +534,34 @@ export default function ResultScreen({ navigation }) {
                 ))}
               </View>
             )}
+
+            {/* メモセクション */}
+            <View style={s.memoCard}>
+              <Text style={s.memoTitle}>📝 メモ</Text>
+              <Text style={s.memoHint}>作った感想・改善点を自由に書けます</Text>
+              <TextInput
+                style={s.memoInput}
+                value={memoText}
+                onChangeText={setMemoText}
+                placeholder="例：塩を少し減らしたらちょうどよかった"
+                placeholderTextColor="#bbb"
+                multiline
+                maxLength={200}
+                textAlignVertical="top"
+              />
+              <TouchableOpacity
+                style={[s.memoSaveBtn, memoSaving && { opacity: 0.6 }]}
+                onPress={() => {
+                  updateMemo(recipe.name, memoText);
+                  setMemoSaving(true);
+                  setTimeout(() => setMemoSaving(false), 1200);
+                }}
+                activeOpacity={0.85}
+                disabled={memoSaving}
+              >
+                <Text style={s.memoSaveBtnText}>{memoSaving ? '✓ 保存しました' : 'メモを保存'}</Text>
+              </TouchableOpacity>
+            </View>
 
             {/* AI生成注意 + 報告リンク */}
             <View style={{ alignItems: 'center', paddingTop: 8, paddingBottom: 4, gap: 8 }}>
@@ -847,4 +885,35 @@ const makeStyles = (C) => StyleSheet.create({
   },
   actionBtnEmoji: { fontSize: 18 },
   actionBtnText: { color: '#fff', fontSize: 11, fontWeight: '700' },
+
+  memoCard: {
+    backgroundColor: '#fffdf5',
+    borderRadius: 18,
+    padding: 18,
+    marginTop: 8,
+    marginBottom: 14,
+    borderWidth: 1.5,
+    borderColor: '#fde68a',
+  },
+  memoTitle: { fontSize: 17, fontWeight: '800', color: '#92400e', marginBottom: 4 },
+  memoHint: { fontSize: 12, color: '#a16207', marginBottom: 10 },
+  memoInput: {
+    minHeight: 80,
+    borderWidth: 1,
+    borderColor: '#fcd34d',
+    borderRadius: 10,
+    padding: 12,
+    fontSize: 14,
+    color: '#333',
+    backgroundColor: '#fff',
+    lineHeight: 22,
+  },
+  memoSaveBtn: {
+    marginTop: 10,
+    backgroundColor: '#d97706',
+    borderRadius: 12,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  memoSaveBtnText: { color: '#fff', fontWeight: '700', fontSize: 14 },
 });

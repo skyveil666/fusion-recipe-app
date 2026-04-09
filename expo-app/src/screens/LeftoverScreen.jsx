@@ -88,7 +88,7 @@ export default function LeftoverScreen({ navigation }) {
       setRecipeResult(data.recipe);
       setRecipeSource('leftover');
       setFusionParams({ leftoverText: leftoverText.trim(), leftoverType, cookingTime, servings, type: 'leftover' });
-      addToHistory(data.recipe);
+      addToHistory(data.recipe, 'leftover');
       if (!navigation.isFocused()) return;
       navigation.navigate('Result');
     } catch (e) {
