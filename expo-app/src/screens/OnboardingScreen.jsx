@@ -289,9 +289,9 @@ const s = StyleSheet.create({
     padding: 40,
     gap: 28,
   },
-  emoji: { fontSize: 88, textAlign: 'center' },
-  title: { fontSize: 28, fontWeight: '800', color: '#fff', textAlign: 'center', lineHeight: 38 },
-  desc: { fontSize: 15, color: 'rgba(255,255,255,0.85)', textAlign: 'center', lineHeight: 24 },
+  emoji: { fontSize: 96, textAlign: 'center' },
+  title: { fontSize: 30, fontWeight: '900', color: '#fff', textAlign: 'center', lineHeight: 40 },
+  desc: { fontSize: 17, color: 'rgba(255,255,255,0.9)', textAlign: 'center', lineHeight: 28 },
 
   bottom: { backgroundColor: '#1a3a10', paddingHorizontal: 20, paddingTop: 16, gap: 12 },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: 8, paddingBottom: 4 },
@@ -301,7 +301,7 @@ const s = StyleSheet.create({
   backBtn: { borderRadius: 14, paddingVertical: 14, paddingHorizontal: 20, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.4)', alignItems: 'center', justifyContent: 'center' },
   backText: { color: 'rgba(255,255,255,0.85)', fontSize: 15, fontWeight: '600' },
   nextBtn: { flex: 1, borderRadius: 14, paddingVertical: 14, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
-  nextText: { color: '#2d5a1b', fontSize: 16, fontWeight: '800' },
+  nextText: { color: '#2d5a1b', fontSize: 17, fontWeight: '900' },
   skipBtn: { alignSelf: 'center', paddingVertical: 8 },
   skipText: { color: 'rgba(255,255,255,0.4)', fontSize: 13 },
 

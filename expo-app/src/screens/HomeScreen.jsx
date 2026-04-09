@@ -59,7 +59,7 @@ export default function HomeScreen({ navigation }) {
             </View>
             <UsageIndicator navigation={navigation} />
           </View>
-          <Text style={s.headerDesc}>作りたいスタイルをタップしてください</Text>
+          <Text style={s.headerDesc}>使いたい作り方を選んでください</Text>
         </View>
 
         <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
@@ -75,7 +75,7 @@ export default function HomeScreen({ navigation }) {
                 <Text style={s.featuredBadge}>メイン機能</Text>
                 <Text style={s.featuredTitle}>フュージョンレシピ</Text>
                 <Text style={s.featuredSub}>
-                  2つの国や地域を組み合わせて{'\n'}オリジナルのレシピを作る
+                  2つの料理や地域を組み合わせて{'\n'}オリジナルのレシピを作る
                 </Text>
               </View>
             </View>
@@ -96,7 +96,7 @@ export default function HomeScreen({ navigation }) {
                 <Text style={s.photoBadge}>かんたん一品</Text>
                 <Text style={s.photoTitle}>写真でかんたん一品</Text>
                 <Text style={s.photoSub}>
-                  食材の写真を撮るだけで{'\n'}15分以内の一品を提案
+                  写真から15分以内の{'\n'}一品を提案
                 </Text>
               </View>
             </View>
@@ -117,7 +117,7 @@ export default function HomeScreen({ navigation }) {
                 <Text style={s.microwaveBadge}>火を使わない</Text>
                 <Text style={s.microwaveTitle}>電子レンジで一品</Text>
                 <Text style={s.microwaveSub}>
-                  10分以内・洗い物少なめ{'\n'}今すぐ一品ほしいときに
+                  火を使わず10分以内{'\n'}今すぐ一品ほしいときに
                 </Text>
               </View>
             </View>
@@ -138,7 +138,7 @@ export default function HomeScreen({ navigation }) {
                 <Text style={s.leftoverBadge}>もったいない活用</Text>
                 <Text style={s.leftoverTitle}>残り物アレンジ</Text>
                 <Text style={s.leftoverSub}>
-                  昨日の残り物を{'\n'}別の一品にアレンジする
+                  残った料理を{'\n'}簡単に別の一品へ変える
                 </Text>
               </View>
             </View>
@@ -159,7 +159,7 @@ export default function HomeScreen({ navigation }) {
                 <Text style={s.dishBadge}>時短アレンジ</Text>
                 <Text style={s.dishTitle}>料理×食材フュージョン</Text>
                 <Text style={s.dishSub}>
-                  好きな料理に食材を組み合わせて{'\n'}新しい一皿を作る
+                  好きな料理と食材を組み合わせて{'\n'}新しい一皿を作る
                 </Text>
               </View>
             </View>

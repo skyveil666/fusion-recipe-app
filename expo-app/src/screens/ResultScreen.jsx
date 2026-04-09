@@ -379,20 +379,6 @@ export default function ResultScreen({ navigation }) {
               {recipe.calories && <View style={s.chip}><Text style={s.chipText}>🔥 {recipe.calories} kcal</Text></View>}
             </View>
 
-            {/* Nutrition – 1人前あたり */}
-            <View style={s.nutriCard}>
-              <Text style={s.nutriPerLabel}>1人前あたり</Text>
-              <View style={s.nutriRow}>
-                <NutriBadge value={recipe.nutrition?.protein ?? '—'} unit="g" label="タンパク質" color="#4a8020" s={s} />
-                <View style={s.divider} />
-                <NutriBadge value={recipe.nutrition?.fat ?? '—'}     unit="g" label="脂質"       color="#9040b0" s={s} />
-                <View style={s.divider} />
-                <NutriBadge value={recipe.nutrition?.carbs ?? '—'}   unit="g" label="炭水化物"   color="#2060c0" s={s} />
-                <View style={s.divider} />
-                <NutriBadge value={recipe.calories ?? '—'}           unit=""  label="kcal"       color={C.accent} s={s} />
-              </View>
-            </View>
-
             {/* Ingredients */}
             {recipe.ingredients?.length > 0 && (
               <View style={s.section}>
@@ -492,6 +478,20 @@ export default function ResultScreen({ navigation }) {
                 ))}
               </View>
             )}
+
+            {/* Nutrition – 1人前あたり */}
+            <View style={s.nutriCard}>
+              <Text style={s.nutriPerLabel}>1人前あたり</Text>
+              <View style={s.nutriRow}>
+                <NutriBadge value={recipe.nutrition?.protein ?? '—'} unit="g" label="タンパク質" color="#4a8020" s={s} />
+                <View style={s.divider} />
+                <NutriBadge value={recipe.nutrition?.fat ?? '—'}     unit="g" label="脂質"       color="#9040b0" s={s} />
+                <View style={s.divider} />
+                <NutriBadge value={recipe.nutrition?.carbs ?? '—'}   unit="g" label="炭水化物"   color="#2060c0" s={s} />
+                <View style={s.divider} />
+                <NutriBadge value={recipe.calories ?? '—'}           unit=""  label="kcal"       color={C.accent} s={s} />
+              </View>
+            </View>
 
             {/* エラーカード */}
             {actionError && (
@@ -689,11 +689,11 @@ const makeStyles = (C) => StyleSheet.create({
   tagItemPfc:      { backgroundColor: '#e8f4ff', borderColor: '#2060c0' },
   tagItemPhoto:    { backgroundColor: '#fff3e0', borderColor: '#b45309' },
   tagItemDish:     { backgroundColor: '#f0f8ee', borderColor: C.primary },
-  tagText: { fontSize: 13, fontWeight: '600', color: C.text },
+  tagText: { fontSize: 14, fontWeight: '600', color: C.text },
 
   body: { padding: 16 },
-  recipeName: { fontSize: 20, fontWeight: '700', color: C.text, lineHeight: 28, marginBottom: 8 },
-  recipeDesc: { fontSize: 13, color: C.textSub, lineHeight: 20, marginBottom: 16 },
+  recipeName: { fontSize: 26, fontWeight: '700', color: C.text, lineHeight: 28, marginBottom: 8 },
+  recipeDesc: { fontSize: 15, color: C.textSub, lineHeight: 22, marginBottom: 16 },
 
   nutriCard: { backgroundColor: C.white, borderRadius: 16, padding: 14, marginBottom: 12, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
   nutriPerLabel: { fontSize: 10, fontWeight: '700', color: C.textMuted, textAlign: 'center', letterSpacing: 0.5, marginBottom: 10 },
@@ -708,7 +708,7 @@ const makeStyles = (C) => StyleSheet.create({
   chipText: { fontSize: 12, color: C.textSub },
 
   section: { backgroundColor: C.white, borderRadius: 16, padding: 16, marginTop: 14, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  sectionTitle: { fontSize: 14, fontWeight: '700', color: C.text, marginBottom: 12 },
+  sectionTitle: { fontSize: 17, fontWeight: '800', color: C.text, marginBottom: 14 },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
   servingsBadge: { backgroundColor: C.primary, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 4 },
   servingsText: { color: '#fff', fontSize: 13, fontWeight: '700' },
@@ -725,9 +725,9 @@ const makeStyles = (C) => StyleSheet.create({
   shoppingAllBtnText: { fontSize: 13, fontWeight: '700', color: '#16a34a' },
   shoppingAllBtnTextActive: { color: '#fff' },
 
-  ingRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: C.creamBorder, gap: 8 },
-  ingName: { flex: 1, fontSize: 14, color: C.text },
-  ingAmount: { fontSize: 13, color: C.textMuted },
+  ingRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: C.creamBorder, gap: 8 },
+  ingName: { flex: 1, fontSize: 16, color: C.text },
+  ingAmount: { fontSize: 15, color: C.textMuted },
   ingInfoHint: { fontSize: 13, color: C.textMuted, opacity: 0.6 },
   ingInfoBadge: {
     width: 20, height: 20, borderRadius: 10,
@@ -814,7 +814,7 @@ const makeStyles = (C) => StyleSheet.create({
   tipRow: { flexDirection: 'row', gap: 10, marginTop: 10, alignItems: 'flex-start' },
   tipBadge: { width: 24, height: 24, borderRadius: 8, backgroundColor: C.accent, alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 },
   tipBadgeText: { color: '#fff', fontSize: 10, fontWeight: '700' },
-  tipText: { flex: 1, fontSize: 13, color: C.textSub, lineHeight: 20 },
+  tipText: { flex: 1, fontSize: 14, color: C.textSub, lineHeight: 22 },
 
   actionErrorCard: {
     backgroundColor: '#fff1f0', borderRadius: 14,
@@ -829,10 +829,10 @@ const makeStyles = (C) => StyleSheet.create({
   },
   actionRetryText: { color: '#fff', fontSize: 13, fontWeight: '700' },
 
-  stepRow: { flexDirection: 'row', gap: 12, marginBottom: 14 },
-  stepNum: { width: 24, height: 24, borderRadius: 12, backgroundColor: C.primary, alignItems: 'center', justifyContent: 'center', marginTop: 1, flexShrink: 0 },
-  stepNumText: { color: '#fff', fontSize: 12, fontWeight: '700' },
-  stepText: { flex: 1, fontSize: 13, color: C.text, lineHeight: 20 },
+  stepRow: { flexDirection: 'row', gap: 14, marginBottom: 22, alignItems: 'flex-start' },
+  stepNum: { width: 34, height: 34, borderRadius: 17, backgroundColor: C.primary, alignItems: 'center', justifyContent: 'center', marginTop: 2, flexShrink: 0 },
+  stepNumText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  stepText: { flex: 1, fontSize: 16, color: C.text, lineHeight: 26 },
 
   bottomBar: {
     position: 'absolute', bottom: 56, left: 0, right: 0,

@@ -214,6 +214,16 @@ export default function SettingsScreen({ navigation }) {
           )}
         </View>
 
+        {/* ガイド再表示 */}
+        <TouchableOpacity
+          style={s.guideBtn}
+          onPress={() => { setHasSeenOnboarding(false); navigation.replace('Onboarding'); }}
+          activeOpacity={0.85}
+        >
+          <Text style={s.guideBtnText}>📖 はじめてのガイドを見る</Text>
+          <Text style={s.guideBtnSub}>アプリの使い方を最初から確認できます</Text>
+        </TouchableOpacity>
+
         {/* Info */}
         <View style={s.infoCard}>
           <Text style={s.infoText}>
@@ -455,12 +465,17 @@ const makeStyles = (C) => StyleSheet.create({
   disclaimerSub: { fontSize: 12, color: C.textMuted },
 
   guideBtn: {
-    backgroundColor: C.white, borderRadius: 16, padding: 16, marginTop: 10,
-    shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
-    borderWidth: 1, borderColor: C.creamBorder,
+    backgroundColor: '#f0fdf4',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1.5,
+    borderColor: '#86efac',
+    gap: 4,
+    marginBottom: 4,
   },
+  guideBtnText: { fontSize: 15, fontWeight: '700', color: '#15803d' },
   guideBtnTitle: { fontSize: 14, fontWeight: '700', color: C.text },
-  guideBtnSub: { fontSize: 12, color: C.textMuted },
+  guideBtnSub: { fontSize: 12, color: '#16a34a' },
 
   // Modal styles
   modalContainer: { flex: 1, backgroundColor: '#f9f6f0' },
