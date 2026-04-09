@@ -596,16 +596,16 @@ const makeStyles = (C) => StyleSheet.create({
 
   // Time
   timeRow: { flexDirection: 'row', gap: 10, justifyContent: 'center', marginTop: 4 },
-  timeBtn: { flex: 1, aspectRatio: 1, maxWidth: 72, borderRadius: 999, borderWidth: 2, borderColor: C.primary, backgroundColor: C.white, alignItems: 'center', justifyContent: 'center' },
+  timeBtn: { flex: 1, aspectRatio: 1, maxWidth: 72, borderRadius: 999, borderWidth: 1.5, borderColor: C.creamBorder, backgroundColor: C.white, alignItems: 'center', justifyContent: 'center' },
   timeBtnActive: { backgroundColor: C.primary },
-  timeBtnText: { fontSize: 13, fontWeight: '600', color: C.primary },
+  timeBtnText: { fontSize: 13, fontWeight: '600', color: C.textSub },
   timeBtnTextActive: { color: '#fff' },
 
   // Servings
   pillRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginTop: 4 },
-  pill: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 12, borderWidth: 1.5, borderColor: C.primary, backgroundColor: C.white },
+  pill: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 12, borderWidth: 1.5, borderColor: C.creamBorder, backgroundColor: C.white },
   pillActive: { backgroundColor: C.primary, borderColor: C.primary },
-  pillText: { fontSize: 14, fontWeight: '600', color: C.primary },
+  pillText: { fontSize: 14, fontWeight: '600', color: C.textMuted },
   pillTextActive: { color: '#fff' },
   stepperRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 20, marginTop: 14 },
   stepperBtn: { width: 44, height: 44, borderRadius: 22, borderWidth: 2, borderColor: C.primary, alignItems: 'center', justifyContent: 'center', backgroundColor: C.white },

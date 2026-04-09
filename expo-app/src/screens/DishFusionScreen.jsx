@@ -350,14 +350,14 @@ function makeStyles(C) {
       paddingVertical: 10,
       borderRadius: 22,
       borderWidth: 1.5,
-      borderColor: '#c4b5fd',
+      borderColor: '#e5e7eb',
       backgroundColor: '#fff',
     },
     chipActive: {
       backgroundColor: '#7c3aed',
       borderColor: '#7c3aed',
     },
-    chipText: { fontSize: 14, fontWeight: '600', color: '#7c3aed' },
+    chipText: { fontSize: 14, fontWeight: '600', color: '#888' },
     chipTextActive: { color: '#fff' },
 
     switchRow: {

@@ -667,12 +667,12 @@ const makeStyles = (C) => StyleSheet.create({
   timeRow: { flexDirection: 'row', gap: 10, justifyContent: 'center' },
   timeBtn: {
     flex: 1, aspectRatio: 1, maxWidth: 72,
-    borderRadius: 999, borderWidth: 2,
-    borderColor: C.primary, backgroundColor: C.white,
+    borderRadius: 999, borderWidth: 1.5,
+    borderColor: C.creamBorder, backgroundColor: C.white,
     alignItems: 'center', justifyContent: 'center',
   },
   timeBtnActive: { backgroundColor: C.primary },
-  timeBtnText: { fontSize: 13, fontWeight: '600', color: C.primary },
+  timeBtnText: { fontSize: 13, fontWeight: '600', color: C.textSub },
   timeBtnTextActive: { color: '#fff' },
 
   // Inputs
@@ -778,11 +778,11 @@ const makeStyles = (C) => StyleSheet.create({
   pfcPresetRow: { flexDirection: 'row', gap: 6, marginBottom: 4 },
   pfcPresetBtn: {
     flex: 1, paddingVertical: 9, borderRadius: 12,
-    borderWidth: 1.5, borderColor: C.primary,
+    borderWidth: 1.5, borderColor: C.creamBorder,
     alignItems: 'center', backgroundColor: C.white,
   },
   pfcPresetBtnActive: { backgroundColor: C.primary, borderColor: C.primary },
-  pfcPresetText: { fontSize: 12, fontWeight: '600', color: C.primary },
+  pfcPresetText: { fontSize: 12, fontWeight: '600', color: C.textMuted },
   pfcPresetTextActive: { color: '#fff' },
   heartyNote: {
     fontSize: 13, color: C.textSub, textAlign: 'center',
@@ -802,11 +802,11 @@ const makeStyles = (C) => StyleSheet.create({
   servingsRow: { flexDirection: 'row', gap: 8 },
   servingBtn: {
     flex: 1, paddingVertical: 12, borderRadius: 12,
-    borderWidth: 1.5, borderColor: C.primary,
+    borderWidth: 1.5, borderColor: C.creamBorder,
     alignItems: 'center', justifyContent: 'center', backgroundColor: C.white,
   },
   servingBtnActive: { backgroundColor: C.primary, borderColor: C.primary },
-  servingBtnText: { fontSize: 12, fontWeight: '600', color: C.primary, textAlign: 'center', lineHeight: 16 },
+  servingBtnText: { fontSize: 12, fontWeight: '600', color: C.textMuted, textAlign: 'center', lineHeight: 16 },
   servingBtnSub: {
     flex: 1, paddingVertical: 12, borderRadius: 12,
     borderWidth: 1.5, borderColor: C.creamBorder,
@@ -836,10 +836,10 @@ const makeStyles = (C) => StyleSheet.create({
   categoryRow: { flexDirection: 'row', gap: 8 },
   categoryBtn: {
     flex: 1, paddingVertical: 10, borderRadius: 12,
-    borderWidth: 1.5, borderColor: C.primary,
+    borderWidth: 1.5, borderColor: C.creamBorder,
     alignItems: 'center', backgroundColor: C.white,
   },
   categoryBtnActive: { backgroundColor: C.primary, borderColor: C.primary },
-  categoryBtnText: { fontSize: 13, fontWeight: '600', color: C.primary },
+  categoryBtnText: { fontSize: 13, fontWeight: '600', color: C.textMuted },
   categoryBtnTextActive: { color: '#fff' },
 });

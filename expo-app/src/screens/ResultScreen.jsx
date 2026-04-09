@@ -110,6 +110,7 @@ export default function ResultScreen({ navigation }) {
   const [ingInfo, setIngInfo] = useState(null);   // { description, substitute, imageKeyword, rarity }
   const [ingLoading, setIngLoading] = useState(false);
   const [ingImgError, setIngImgError] = useState(false);
+  const [showFullDesc, setShowFullDesc] = useState(false);
   const ingCache = useRef({});
 
   const openIngredient = async (name) => {
@@ -131,6 +132,10 @@ export default function ResultScreen({ navigation }) {
     setCompletedSteps(new Set());
     setShowAllTips(false);
   }, [recipe?.name]);
+
+  useEffect(() => {
+    setShowFullDesc(false);
+  }, [ingModal?.name]);
 
   useEffect(() => {
     if (!recipe) return;
@@ -708,7 +713,23 @@ export default function ResultScreen({ navigation }) {
             ) : ingInfo ? (
               <>
                 {/* 説明文 */}
-                <Text style={s.modalDesc}>{ingInfo.description}</Text>
+                <Text
+                  style={s.modalDesc}
+                  numberOfLines={showFullDesc ? undefined : 3}
+                >
+                  {ingInfo.description}
+                </Text>
+                {ingInfo.description?.length > 80 && (
+                  <TouchableOpacity
+                    onPress={() => setShowFullDesc(!showFullDesc)}
+                    style={s.modalDescToggle}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={s.modalDescToggleText}>
+                      {showFullDesc ? '閉じる ▲' : 'もっと見る ▼'}
+                    </Text>
+                  </TouchableOpacity>
+                )}
 
                 {/* 旬の時期 */}
                 {ingInfo.season && (
@@ -885,7 +906,14 @@ const makeStyles = (C) => StyleSheet.create({
   modalRarityBadgeRare: { backgroundColor: '#fef3c7' },
   modalRarityText: { fontSize: 11, color: '#b45309', fontWeight: '700' },
   // 説明文
-  modalDesc: { fontSize: 14, color: C.textSub, lineHeight: 22, marginBottom: 14, paddingHorizontal: 20 },
+  modalDesc: { fontSize: 14, color: C.textSub, lineHeight: 22, marginBottom: 6, paddingHorizontal: 20 },
+  modalDescToggle: {
+    alignSelf: 'flex-start',
+    marginLeft: 20,
+    marginBottom: 8,
+    paddingVertical: 4,
+  },
+  modalDescToggleText: { fontSize: 13, color: C.primary, fontWeight: '600' },
   // 旬・代用の共通行スタイル
   modalInfoRow: {
     flexDirection: 'row', alignItems: 'flex-start', gap: 10,

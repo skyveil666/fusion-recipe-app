@@ -196,7 +196,7 @@ export default function MicrowaveScreen({ navigation }) {
                 <View style={s.switchRow}>
                   <View style={s.switchLeft}>
                     <Text style={s.switchLabel}>調味料少なめ</Text>
-                    <Text style={s.switchDesc}>家にある基本調味料を2〜4種類に絞る</Text>
+                    <Text style={s.switchDesc}>基本調味料だけで作ります</Text>
                   </View>
                   <Switch value={lessSeasoning} onValueChange={setLessSeasoning}
                     trackColor={{ false: '#ddd', true: ACCENT }} thumbColor="#fff" />
@@ -207,7 +207,7 @@ export default function MicrowaveScreen({ navigation }) {
                 <View style={s.switchRow}>
                   <View style={s.switchLeft}>
                     <Text style={s.switchLabel}>家にあるもので作る</Text>
-                    <Text style={s.switchDesc}>買い足し最小限・特殊食材を使わない</Text>
+                    <Text style={s.switchDesc}>買い足しをできるだけ減らします</Text>
                   </View>
                   <Switch value={homeIngredients} onValueChange={setHomeIngredients}
                     trackColor={{ false: '#ddd', true: ACCENT }} thumbColor="#fff" />
@@ -218,7 +218,7 @@ export default function MicrowaveScreen({ navigation }) {
                 <View style={s.switchRow}>
                   <View style={s.switchLeft}>
                     <Text style={s.switchLabel}>洗い物少なめ</Text>
-                    <Text style={s.switchDesc}>器具・容器をできるだけ1つにまとめる</Text>
+                    <Text style={s.switchDesc}>洗い物を最小限にします</Text>
                   </View>
                   <Switch value={lessWashing} onValueChange={setLessWashing}
                     trackColor={{ false: '#ddd', true: ACCENT }} thumbColor="#fff" />
@@ -229,7 +229,7 @@ export default function MicrowaveScreen({ navigation }) {
                 <View style={s.switchRow}>
                   <View style={s.switchLeft}>
                     <Text style={s.switchLabel}>手が汚れにくい</Text>
-                    <Text style={s.switchDesc}>こねる・まぶす工程を避け、箸で混ぜる程度に</Text>
+                    <Text style={s.switchDesc}>手が汚れずに作れます</Text>
                   </View>
                   <Switch value={cleanHands} onValueChange={setCleanHands}
                     trackColor={{ false: '#ddd', true: ACCENT }} thumbColor="#fff" />
@@ -241,7 +241,7 @@ export default function MicrowaveScreen({ navigation }) {
                 <View style={s.switchRow}>
                   <View style={s.switchLeft}>
                     <Text style={s.cardLabel}>🚫 除外キーワード（任意）</Text>
-                    <Text style={s.switchDesc}>使いたくない食材や料理を入力</Text>
+                    <Text style={s.switchDesc}>含めてほしくない食材・料理を書いてください</Text>
                   </View>
                   <Switch value={isExcludeEnabled} onValueChange={setIsExcludeEnabled}
                     trackColor={{ false: '#ddd', true: ACCENT }} thumbColor="#fff" />
@@ -347,11 +347,11 @@ function makeStyles(C) {
       paddingVertical: 10,
       borderRadius: 22,
       borderWidth: 1.5,
-      borderColor: BORDER_COLOR,
+      borderColor: '#e5e7eb',
       backgroundColor: '#fff',
     },
     chipActive: { backgroundColor: ACCENT, borderColor: ACCENT },
-    chipText: { fontSize: 14, fontWeight: '600', color: ACCENT },
+    chipText: { fontSize: 14, fontWeight: '600', color: '#888' },
     chipTextActive: { color: '#fff' },
 
     switchRow: {

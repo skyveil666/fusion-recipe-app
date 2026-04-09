@@ -212,7 +212,7 @@ export default function LeftoverScreen({ navigation }) {
                 <View style={s.switchRow}>
                   <View style={s.switchLeft}>
                     <Text style={s.switchLabel}>調味料少なめ</Text>
-                    <Text style={s.switchDesc}>家にある基本調味料を2〜4種類に絞る</Text>
+                    <Text style={s.switchDesc}>基本調味料だけで作ります</Text>
                   </View>
                   <Switch
                     value={lessSeasoning}
@@ -227,7 +227,7 @@ export default function LeftoverScreen({ navigation }) {
                 <View style={s.switchRow}>
                   <View style={s.switchLeft}>
                     <Text style={s.switchLabel}>家にあるもので作る</Text>
-                    <Text style={s.switchDesc}>買い足し最小限・特殊食材を使わない</Text>
+                    <Text style={s.switchDesc}>買い足しをできるだけ減らします</Text>
                   </View>
                   <Switch
                     value={homeIngredients}
@@ -242,7 +242,7 @@ export default function LeftoverScreen({ navigation }) {
                 <View style={s.switchRow}>
                   <View style={s.switchLeft}>
                     <Text style={s.switchLabel}>工程少なめ</Text>
-                    <Text style={s.switchDesc}>手順・洗い物を増やしすぎない</Text>
+                    <Text style={s.switchDesc}>工程をシンプルに仕上げます</Text>
                   </View>
                   <Switch
                     value={lessSteps}
@@ -258,7 +258,7 @@ export default function LeftoverScreen({ navigation }) {
                 <View style={s.switchRow}>
                   <View style={s.switchLeft}>
                     <Text style={s.cardLabel}>🚫 除外キーワード（任意）</Text>
-                    <Text style={s.switchDesc}>使いたくない食材や調理法を入力</Text>
+                    <Text style={s.switchDesc}>含めてほしくない食材・調理法を書いてください</Text>
                   </View>
                   <Switch
                     value={isExcludeEnabled}
@@ -368,11 +368,11 @@ function makeStyles(C) {
       paddingVertical: 10,
       borderRadius: 22,
       borderWidth: 1.5,
-      borderColor: BORDER_COLOR,
+      borderColor: '#e5e7eb',
       backgroundColor: '#fff',
     },
     chipActive: { backgroundColor: ACCENT, borderColor: ACCENT },
-    chipText: { fontSize: 14, fontWeight: '600', color: ACCENT },
+    chipText: { fontSize: 14, fontWeight: '600', color: '#888' },
     chipTextActive: { color: '#fff' },
 
     switchRow: {
